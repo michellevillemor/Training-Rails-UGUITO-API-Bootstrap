@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(version: 2024_05_08_184320) do
   create_table "notes", force: :cascade do |t|
     t.string "title", null: false
     t.text "content", null: false
-    t.string "note_type", null: false
+    t.integer "note_type", default: 0, null: false
     t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
