@@ -13,8 +13,8 @@
 class Note < ApplicationRecord
   validates :title, :content, :note_type, :user, presence: true
 
-  enum note_type: [:review, :critique]
-  
+  enum note_type: { review: 0, critique: 1 }
+
   belongs_to :user
-  has_one :utility, through: :user 
+  has_one :utility, through: :user
 end
