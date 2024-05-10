@@ -31,6 +31,7 @@
 
 es:
   hello: "Hola Mundo!"
+  words: "palabras"
   activerecord:
     attributes:
       note:
