@@ -31,3 +31,17 @@
 
 en:
   hello: "Hello world"
+  activerecord:
+    attributes:
+      note:
+        note_type: Note type
+    models:
+      note:
+        one: Note
+        other: Notes
+        note_type:
+          critique: Critique
+          review: Review
+    errors:
+      note:
+        content_length: must not be greater than

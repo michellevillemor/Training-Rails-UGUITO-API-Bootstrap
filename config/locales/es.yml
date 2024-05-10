@@ -31,3 +31,17 @@
 
 es:
   hello: "Hola Mundo!"
+  activerecord:
+    attributes:
+      note:
+        note_type: Tipo de nota
+    models:
+      note:
+        one: Nota
+        other: Notas
+        note_type:
+          critique: Crítica
+          review: Reseña
+    errors:
+      note:
+        content_length: no puede ser mayor a
