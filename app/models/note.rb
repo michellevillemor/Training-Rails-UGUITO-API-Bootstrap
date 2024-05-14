@@ -1,4 +1,3 @@
-require 'pry'
 # == Schema Information
 #
 # Table name: notes
@@ -12,7 +11,7 @@ require 'pry'
 #  updated_at :datetime         not null
 #
 class Note < ApplicationRecord
-  validates :title, :content, :user, presence: true
+  validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_length
 
   enum note_type: { review: 0, critique: 1 }
@@ -20,8 +19,8 @@ class Note < ApplicationRecord
   belongs_to :user
   has_one :utility, through: :user
 
-  SHORT_THRESHOLD = { 'North Utility' => 50, 'South Utility' => 60 }.freeze
-  MEDIUM_THRESHOLD = { 'North Utility' => 100, 'South Utility' => 120 }.freeze
+  SHORT_THRESHOLD = { 'NorthUtility' => 50, 'SouthUtility' => 60 }.freeze
+  MEDIUM_THRESHOLD = { 'NorthUtility' => 100, 'SouthUtility' => 120 }.freeze
 
   def validate_content_length
     return unless content_length != 'short' && note_type == 'review'
@@ -43,8 +42,8 @@ class Note < ApplicationRecord
   end
 
   def content_length
-    short_threshold = SHORT_THRESHOLD[utility.name]
-    medium_threshold = MEDIUM_THRESHOLD[utility.name]
+    short_threshold = SHORT_THRESHOLD[utility.type]
+    medium_threshold = MEDIUM_THRESHOLD[utility.type]
 
     case word_count
     when 0..short_threshold
