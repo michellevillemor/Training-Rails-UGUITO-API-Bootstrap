@@ -32,6 +32,9 @@
 es:
   hello: "Hola Mundo!"
   activerecord:
+    attributes:
+      note:
+        content: "El contenido"
     errors:
       note:
-        content_length: "El contenido de la %{note_type} es mayor a %{threshold} para %{utility_name}"
+        content_length: "de la %{note_type} es mayor a %{threshold} para %{utility_name}"
