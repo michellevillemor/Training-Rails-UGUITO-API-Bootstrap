@@ -20,7 +20,7 @@ class Note < ApplicationRecord
   has_one :utility, through: :user
 
   def validate_content_length
-    return unless content_length != 'short' && note_type == 'review'
+    return unless user_id == '' && content_length != 'short' && note_type == 'review'
 
     error_message = I18n.t('activerecord.errors.note.content_length', { note_type: note_type, threshold: utility.thresholds[:short], utility_name: utility.name})
     errors.add(error_message)

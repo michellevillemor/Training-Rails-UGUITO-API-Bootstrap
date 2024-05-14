@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  subject(:user) { build(:user) }
+  subject(:user) { create(:user) }
 
   %i[email password].each do |value|
     it { is_expected.to validate_presence_of(value) }
