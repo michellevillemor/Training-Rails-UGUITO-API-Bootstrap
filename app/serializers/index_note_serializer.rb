@@ -1,3 +1,3 @@
 class IndexNoteSerializer < ActiveModel::Serializer
-    attributes :id, :title, :type, :content_length
+  attributes :id, :title, :note_type, :content_length
 end
