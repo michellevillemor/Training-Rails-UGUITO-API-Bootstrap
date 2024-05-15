@@ -1,9 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Note, type: :model do
-  let(:north_utility_user_id) { User.where(email: 'test_north@widergy.com').pluck(:id) }
-  let(:south_utility_user_id) { User.where(email: 'test_south@widergy.com').pluck(:id) }
-
+ 
   subject(:note) do
     create(:note)
   end
@@ -24,10 +22,10 @@ RSpec.describe Note, type: :model do
     let(:critique) { Array.new(70,"valid").join(' ') }
 
     it 'creates a valid review for north utility' do
-      expected = { title: 'Esto es una nota', content: valid_north_review, note_type: 'review'}
+      expected = { title: 'Esto es una nota', content: valid_north_review, note_type: 'review', user_id: 1 }
 
       custom_utility = create(:utility, type: 'NorthUtility')
-      note = create(:note, content: valid_north_review, utility: custom_utility)
+      note = create(:note, content: valid_north_review, utility: custom_utility, user_id: 1)
 
       expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
     end
@@ -36,14 +34,14 @@ RSpec.describe Note, type: :model do
       expected = { title: 'Esto es una nota', content: valid_south_review, note_type: 'review'}
 
       custom_utility = create(:utility, type: 'SouthUtility')
-      note = create(:note, content: valid_south_review, utility: custom_utility)
+      note = create(:note, content: valid_south_review, utility: custom_utility, user_id: 1)
 
       expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
     end
 
     it 'creates a valid critique' do
       expected = { title: 'Esto es una nota', content: critique, note_type: 'critique'}
-      note = create(:note, note_type: 'critique', content: critique)
+      note = create(:note, note_type: 'critique', content: critique, user_id: 1)
       
       expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
     end
