@@ -12,7 +12,7 @@
 #
 class Note < ApplicationRecord
   validates :user_id, :title, :content, :note_type, presence: true
-  validate :validate_content_length, unless: -> { user_id.blank? }
+  validate :validate_content_length, unless: -> { user_id.blank? || content.blank? }
   
   enum note_type: { 'review' => 0, 'critique' => 1 }
 
@@ -24,7 +24,7 @@ class Note < ApplicationRecord
 
     error_message = I18n.t('activerecord.errors.note.content_length',
                            { note_type: note_type, threshold: utility.short_threshold,
-                             utility_name: utility.name })
+                             utility_type: utility.type })
     errors.add(I18n.t('activerecord.attributes.note.content'), error_message)
   end
 

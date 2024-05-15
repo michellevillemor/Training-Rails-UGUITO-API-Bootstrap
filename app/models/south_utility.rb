@@ -1,9 +1,9 @@
 class SouthUtility < Utility
   def short_threshold
-    50
+    60
   end
 
   def medium_threshold
-    100
+    120
   end
 end
