@@ -1,10 +1,9 @@
 class SouthUtility < Utility
-    NOTE_SIZE_THRESHOLDS = {
-        :short => 50,
-        :medium => 100
-    }
+  def short_threshold
+    60
+  end
 
-    def thresholds
-        NOTE_SIZE_THRESHOLDS
-    end
+  def medium_threshold
+    120
+  end
 end
