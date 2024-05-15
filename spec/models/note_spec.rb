@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Note, type: :model do
- 
   subject(:note) do
     create(:note)
   end
@@ -17,9 +16,9 @@ RSpec.describe Note, type: :model do
   end
 
   context 'when content size is within thresholds' do
-    let(:valid_north_review) { Array.new(50,"valid").join(' ') }
-    let(:valid_south_review) { Array.new(60,"valid").join(' ') }
-    let(:critique) { Array.new(70,"valid").join(' ') }
+    let(:valid_north_review) { Array.new(50, 'valid').join(' ') }
+    let(:valid_south_review) { Array.new(60, 'valid').join(' ') }
+    let(:critique) { Array.new(70, 'valid').join(' ') }
 
     it 'creates a valid review for north utility' do
       expected = { title: 'Esto es una nota', content: valid_north_review, note_type: 'review' }
@@ -44,29 +43,29 @@ RSpec.describe Note, type: :model do
     it 'creates a valid critique' do
       expected = { title: 'Esto es una nota', content: critique, note_type: 'critique' }
       note = create(:note, note_type: 'critique', content: critique)
-      
+
       expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
     end
   end
 
-  context 'when content size exceeds threshold'  do
-    let(:invalid_north_review) { Array.new(51,"invalid").join(' ') }
-    let(:invalid_south_review) { Array.new(61,"invalid").join(' ') }
+  context 'when content size exceeds threshold' do
+    let(:invalid_north_review) { Array.new(51, 'invalid').join(' ') }
+    let(:invalid_south_review) { Array.new(61, 'invalid').join(' ') }
 
     it 'throws error when creating an invalid review for north utility' do
       custom_utility = create(:utility, type: 'NorthUtility')
 
-    expect {
-      create(:note, utility: custom_utility, content: invalid_north_review)
-    }.to raise_error("La validación falló: El contenido de la review es mayor a 50 para NorthUtility")
+      expect do
+        create(:note, utility: custom_utility, content: invalid_north_review)
+      end.to raise_error('La validación falló: El contenido de la review es mayor a 50 para NorthUtility')
     end
 
     it 'throws error when creating an invalid review for south utility' do
       custom_utility = create(:utility, type: 'SouthUtility')
 
-      expect {
+      expect do
         create(:note, utility: custom_utility, content: invalid_south_review)
-      }.to raise_error("La validación falló: El contenido de la review es mayor a 60 para SouthUtility")
+      end.to raise_error('La validación falló: El contenido de la review es mayor a 60 para SouthUtility')
     end
   end
 end
