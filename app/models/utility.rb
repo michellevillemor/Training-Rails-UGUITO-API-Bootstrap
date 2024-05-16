@@ -73,6 +73,14 @@ class Utility < ApplicationRecord
     self.class.name.underscore.split('_').first
   end
 
+  def content_short_length
+    raise NotImplementedMethod, 'Short threshold not defined'
+  end
+
+  def content_medium_length
+    raise NotImplementedMethod, 'Medium threshold not defined'
+  end
+
   private
 
   def utility_type

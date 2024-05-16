@@ -31,3 +31,11 @@
 
 en:
   hello: "Hello world"
+  word: "words"
+  activerecord:
+    attributes:
+      note:
+        content: "The content"
+    errors:
+      note:
+        content_length: "of the %{note_type} is bigger than %{threshold} for %{utility_name}"
