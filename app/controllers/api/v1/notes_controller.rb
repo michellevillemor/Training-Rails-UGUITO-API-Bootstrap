@@ -7,7 +7,7 @@ module Api
       end
       
       def show
-        # render json: show_note, status: :ok, serializer: ShowNoteSerializer
+        render json: show_note, status: :ok, serializer: ShowNoteSerializer
       end
       
       private
@@ -35,6 +35,10 @@ module Api
         notes = filter_notes_by_type
         notes = sort_notes_by_order notes
         paginated_notes notes
+      end
+
+      def show_note
+        all_notes.find(params.require(:id))
       end
       
       def filtering_params

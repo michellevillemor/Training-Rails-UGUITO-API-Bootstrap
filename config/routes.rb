@@ -22,9 +22,6 @@ Rails.application.routes.draw do
       get :current
     end
     resources :notes, only: %i[index show] do
-      collection do
-        get :async, to: 'notes#index_async'
-      end
     end
   end
 
