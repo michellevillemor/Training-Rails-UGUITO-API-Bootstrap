@@ -23,8 +23,8 @@ class Note < ApplicationRecord
     return unless content_length != 'short' && note_type == 'review'
 
     error_message = I18n.t('activerecord.errors.note.content_length',
-                           { note_type: note_type, threshold: utility.short_threshold,
-                             utility_type: utility.type })
+                           { note_type: note_type, threshold: utility.content_short_length,
+                             utility_name: utility.name })
     errors.add(I18n.t('activerecord.attributes.note.content'), error_message)
   end
 
@@ -33,8 +33,8 @@ class Note < ApplicationRecord
   end
 
   def content_length
-    return 'short' if word_count <= utility.short_threshold
-    return 'medium' if word_count <= utility.medium_threshold
+    return 'short' if word_count <= utility.content_short_length
+    return 'medium' if word_count <= utility.content_medium_length
     'long'
   end
 end

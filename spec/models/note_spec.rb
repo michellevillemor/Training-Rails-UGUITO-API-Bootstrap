@@ -53,19 +53,19 @@ RSpec.describe Note, type: :model do
     let(:invalid_south_review) { Array.new(61, 'invalid').join(' ') }
 
     it 'throws error when creating an invalid review for north utility' do
-      custom_utility = create(:utility, type: 'NorthUtility')
+      north_utility = create(:utility, type: 'NorthUtility', name:'North Utility')
 
       expect do
-        create(:note, utility: custom_utility, content: invalid_north_review)
-      end.to raise_error('La validación falló: El contenido de la review es mayor a 50 para NorthUtility')
+        create(:note, utility: north_utility, content: invalid_north_review)
+      end.to raise_error('La validación falló: El contenido de la review es mayor a 50 para North Utility')
     end
 
     it 'throws error when creating an invalid review for south utility' do
-      custom_utility = create(:utility, type: 'SouthUtility')
+      south_utility = create(:utility, type: 'SouthUtility', name:'South Utility')
 
       expect do
-        create(:note, utility: custom_utility, content: invalid_south_review)
-      end.to raise_error('La validación falló: El contenido de la review es mayor a 60 para SouthUtility')
+        create(:note, utility: south_utility, content: invalid_south_review)
+      end.to raise_error('La validación falló: El contenido de la review es mayor a 60 para South Utility')
     end
   end
 end
