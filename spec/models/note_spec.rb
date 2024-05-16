@@ -1,5 +1,24 @@
 require 'rails_helper'
 
+RSpec.shared_examples 'a valid note' do |content, note_type, utility_type|
+  it "creates a valid #{note_type} note for #{utility_type}" do
+    utility = create(:utility, type: utility_type)
+    note = create(:note, content: content, note_type: note_type, utility: utility)
+    
+    expect(note).not_to be nil
+  end
+end
+
+RSpec.shared_examples 'a invalid note' do |content, note_type, utility_type|
+  it "throws error when creating an invalid #{note_type} for #{utility_type}" do
+    utility = create(:utility, type: utility_type)
+    
+    expect do
+      create(:note, content: content, note_type: note_type, utility: utility)
+    end.to raise_error(ActiveRecord::RecordInvalid)
+  end
+end
+
 RSpec.describe Note, type: :model do
   subject(:note) do
     create(:note)
@@ -9,63 +28,63 @@ RSpec.describe Note, type: :model do
     it { is_expected.to validate_presence_of(value) }
   end
 
-  it { is_expected.to belong_to(:user) }
+  it { expect(subject).to be_valid }
 
-  it 'has a valid factory' do
-    expect(subject).to be_valid
-  end
+  describe 'associations' do
+    it { is_expected.to belong_to(:user) }
 
-  context 'when content size is within thresholds' do
-    let(:valid_north_review) { Array.new(50, 'valid').join(' ') }
-    let(:valid_south_review) { Array.new(60, 'valid').join(' ') }
-    let(:critique) { Array.new(70, 'valid').join(' ') }
+    it 'can access utility through user' do
+      utility = create(:utility)
+      user = create(:user, utility: utility)
+      note = create(:note, user: user, utility: utility)
 
-    it 'creates a valid review for north utility' do
-      expected = { title: 'Esto es una nota', content: valid_north_review, note_type: 'review' }
-
-      custom_utility = create(:utility, type: 'NorthUtility')
-
-      note = create(:note, content: valid_north_review, utility: custom_utility)
-
-      expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
-    end
-
-    it 'creates a valid review for south utility' do
-      expected = { title: 'Esto es una nota', content: valid_south_review, note_type: 'review' }
-
-      custom_utility = create(:utility, type: 'SouthUtility')
-
-      note = create(:note, content: valid_south_review, utility: custom_utility)
-
-      expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
-    end
-
-    it 'creates a valid critique' do
-      expected = { title: 'Esto es una nota', content: critique, note_type: 'critique' }
-      note = create(:note, note_type: 'critique', content: critique)
-
-      expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
+      expect(note.utility).to eq(utility)
     end
   end
 
-  context 'when content size exceeds threshold' do
-    let(:invalid_north_review) { Array.new(51, 'invalid').join(' ') }
-    let(:invalid_south_review) { Array.new(61, 'invalid').join(' ') }
+  describe '#word_count' do
+    let(:content_with_words) { Faker::Lorem.sentence(word_count: 5) }
 
-    it 'throws error when creating an invalid review for north utility' do
-      north_utility = create(:utility, type: 'NorthUtility', name:'North Utility')
+    it 'counts words in content' do     
+      note = create(:note, content: content_with_words)
 
-      expect do
-        create(:note, utility: north_utility, content: invalid_north_review)
-      end.to raise_error('La validación falló: El contenido de la review es mayor a 50 para North Utility')
-    end
-
-    it 'throws error when creating an invalid review for south utility' do
-      south_utility = create(:utility, type: 'SouthUtility', name:'South Utility')
-
-      expect do
-        create(:note, utility: south_utility, content: invalid_south_review)
-      end.to raise_error('La validación falló: El contenido de la review es mayor a 60 para South Utility')
+      expect(note.word_count).to eq(5)
     end
   end
+
+  describe '#validate_content_length' do
+    context 'when content size is within thresholds' do
+      valid_short_north_review = Faker::Lorem.sentence(word_count: 50)
+      valid_short_south_review = Faker::Lorem.sentence(word_count: 60)
+      valid_short_north_critique = Faker::Lorem.sentence(word_count: 50)
+      valid_medium_north_critique = Faker::Lorem.sentence(word_count: 100)
+      valid_long_north_critique = Faker::Lorem.sentence(word_count: 101)
+      valid_short_south_critique = Faker::Lorem.sentence(word_count: 60)
+      valid_medium_south_critique = Faker::Lorem.sentence(word_count: 120)
+      valid_long_south_critique = Faker::Lorem.sentence(word_count: 121)
+      
+      include_examples 'a valid note', valid_short_north_review, 'review', 'NorthUtility'
+      include_examples 'a valid note', valid_short_south_review, 'review', 'SouthUtility'
+      include_examples 'a valid note', valid_short_north_critique, 'critique', 'NorthUtility'
+      include_examples 'a valid note', valid_medium_north_critique, 'critique', 'NorthUtility'
+      include_examples 'a valid note', valid_long_north_critique, 'critique', 'NorthUtility'
+      include_examples 'a valid note', valid_short_south_critique, 'critique', 'SouthUtility'
+      include_examples 'a valid note', valid_medium_south_critique, 'critique', 'SouthUtility'
+      include_examples 'a valid note', valid_long_south_critique, 'critique', 'SouthUtility'
+    end
+
+    context 'when content size exceeds threshold' do
+      invalid_medium_north_review = Faker::Lorem.sentence(word_count: 51)
+      invalid_long_north_review = Faker::Lorem.sentence(word_count: 101)
+      invalid_medium_south_review = Faker::Lorem.sentence(word_count: 61)
+      invalid_long_south_review = Faker::Lorem.sentence(word_count: 121)
+
+      include_examples 'a invalid note', invalid_medium_north_review, 'review', 'NorthUtility'
+      include_examples 'a invalid note', invalid_long_north_review, 'review', 'NorthUtility'
+      include_examples 'a invalid note', invalid_medium_south_review, 'review', 'SouthUtility'
+      include_examples 'a invalid note', invalid_long_south_review, 'review', 'SouthUtility'
+    end
+  end
+
+  
 end
