@@ -12,12 +12,12 @@ module Api
       
       private
 
-      def all_notes
+      def notes
         Note.all
       end
       
       def filter_notes_by_type
-        filtering_params[:note_type].present? ? Note.where(note_type: filtering_params[:note_type]) : all_notes
+        filtering_params[:note_type].present? ? Note.where(note_type: filtering_params[:note_type]) : notes
       end
 
       def sort_notes_by_order(notes)
@@ -26,8 +26,8 @@ module Api
       end
 
       def paginated_notes(notes)
-        page = params[:page] || 1
-        page_size = params[:page_size] || 10
+        page = params[:page] || 1 # page default
+        page_size = params[:page_size] || 10 # page size default
         notes.page(page).per(page_size)
       end
 
@@ -38,7 +38,7 @@ module Api
       end
 
       def show_note
-        all_notes.find(params.require(:id))
+        notes.find(params.require(:id))
       end
       
       def filtering_params

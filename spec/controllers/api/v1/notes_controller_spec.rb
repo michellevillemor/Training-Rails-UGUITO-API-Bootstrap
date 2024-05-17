@@ -48,10 +48,24 @@ describe Api::V1::NotesController, type: :controller do
       end
     end
     
-    context 'when fetching notes using type filter' do
+    context 'when fetching notes using type filter review' do
       let(:notes_expected) { review_notes }
       
       before { get :index, params: { type: 'review' } }
+      
+      it 'responds with expected notes' do
+        expect(response_body.to_json).to eq(expected)
+      end
+      
+      it 'responds with 200 status' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when fetching notes using type filter critique' do
+      let(:notes_expected) { critique_notes }
+      
+      before { get :index, params: { type: 'critique' } }
       
       it 'responds with expected notes' do
         expect(response_body.to_json).to eq(expected)
