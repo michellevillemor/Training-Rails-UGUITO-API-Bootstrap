@@ -6,7 +6,7 @@ RSpec.shared_context 'with note setup' do |utility_type, _note_type, word_count|
 end
 
 RSpec.shared_examples 'a valid note' do |utility_type, note_type, word_count|
-  include_context 'note setup', utility_type, note_type, word_count
+  include_context 'with note setup', utility_type, note_type, word_count
 
   it "creates a valid #{note_type} note for #{utility_type} with #{word_count} words" do
     note = create(:note, content: content, note_type: note_type, utility: utility)
@@ -15,7 +15,7 @@ RSpec.shared_examples 'a valid note' do |utility_type, note_type, word_count|
 end
 
 RSpec.shared_examples 'an invalid note' do |utility_type, note_type, word_count|
-  include_context 'note setup', utility_type, note_type, word_count
+  include_context 'with note setup', utility_type, note_type, word_count
 
   it "throws error when creating an invalid #{note_type} for #{utility_type} with #{word_count} words" do
     expect { create(:note, content: content, note_type: note_type, utility: utility) }.to raise_error(ActiveRecord::RecordInvalid)
