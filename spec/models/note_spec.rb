@@ -1,21 +1,24 @@
 require 'rails_helper'
 
-RSpec.shared_examples 'a valid note' do |content, note_type, utility_type|
-  it "creates a valid #{note_type} note for #{utility_type}" do
-    utility = create(:utility, type: utility_type)
+RSpec.shared_context 'with note setup' do |utility_type, _note_type, word_count|
+  let(:utility) { create(:utility, type: utility_type.to_s) }
+  let(:content) { Faker::Lorem.sentence(word_count: word_count) }
+end
+
+RSpec.shared_examples 'a valid note' do |utility_type, note_type, word_count|
+  include_context 'note setup', utility_type, note_type, word_count
+
+  it "creates a valid #{note_type} note for #{utility_type} with #{word_count} words" do
     note = create(:note, content: content, note_type: note_type, utility: utility)
-    
     expect(note).not_to be nil
   end
 end
 
-RSpec.shared_examples 'a invalid note' do |content, note_type, utility_type|
-  it "throws error when creating an invalid #{note_type} for #{utility_type}" do
-    utility = create(:utility, type: utility_type)
-    
-    expect do
-      create(:note, content: content, note_type: note_type, utility: utility)
-    end.to raise_error(ActiveRecord::RecordInvalid)
+RSpec.shared_examples 'an invalid note' do |utility_type, note_type, word_count|
+  include_context 'note setup', utility_type, note_type, word_count
+
+  it "throws error when creating an invalid #{note_type} for #{utility_type} with #{word_count} words" do
+    expect { create(:note, content: content, note_type: note_type, utility: utility) }.to raise_error(ActiveRecord::RecordInvalid)
   end
 end
 
@@ -42,10 +45,30 @@ RSpec.describe Note, type: :model do
     end
   end
 
+  describe 'enum note_type' do
+    it 'defines the correct enum values' do
+      expect(described_class.note_types).to eq({ 'review' => 0, 'critique' => 1 })
+    end
+
+    it 'sets note_type to review' do
+      note.update(note_type: 'review')
+      expect(note.note_type).to eq('review')
+    end
+
+    it 'sets note_type to critique' do
+      note.update(note_type: 'critique')
+      expect(note.note_type).to eq('critique')
+    end
+
+    it 'raises an error when setting an invalid note_type' do
+      expect { note.update!(note_type: 'invalid_type') }.to raise_error(ArgumentError)
+    end
+  end
+
   describe '#word_count' do
     let(:content_with_words) { Faker::Lorem.sentence(word_count: 5) }
 
-    it 'counts words in content' do     
+    it 'counts words in content' do
       note = create(:note, content: content_with_words)
 
       expect(note.word_count).to eq(5)
@@ -53,38 +76,46 @@ RSpec.describe Note, type: :model do
   end
 
   describe '#validate_content_length' do
-    context 'when content size is within thresholds' do
-      valid_short_north_review = Faker::Lorem.sentence(word_count: 50)
-      valid_short_south_review = Faker::Lorem.sentence(word_count: 60)
-      valid_short_north_critique = Faker::Lorem.sentence(word_count: 50)
-      valid_medium_north_critique = Faker::Lorem.sentence(word_count: 100)
-      valid_long_north_critique = Faker::Lorem.sentence(word_count: 101)
-      valid_short_south_critique = Faker::Lorem.sentence(word_count: 60)
-      valid_medium_south_critique = Faker::Lorem.sentence(word_count: 120)
-      valid_long_south_critique = Faker::Lorem.sentence(word_count: 121)
-      
-      include_examples 'a valid note', valid_short_north_review, 'review', 'NorthUtility'
-      include_examples 'a valid note', valid_short_south_review, 'review', 'SouthUtility'
-      include_examples 'a valid note', valid_short_north_critique, 'critique', 'NorthUtility'
-      include_examples 'a valid note', valid_medium_north_critique, 'critique', 'NorthUtility'
-      include_examples 'a valid note', valid_long_north_critique, 'critique', 'NorthUtility'
-      include_examples 'a valid note', valid_short_south_critique, 'critique', 'SouthUtility'
-      include_examples 'a valid note', valid_medium_south_critique, 'critique', 'SouthUtility'
-      include_examples 'a valid note', valid_long_south_critique, 'critique', 'SouthUtility'
-    end
+    valid_word_counts = {
+      NorthUtility: {
+        review: [50],
+        critique: [50, 100, 101]
+      },
+      SouthUtility: {
+        review: [60],
+        critique: [60, 120, 121]
+      }
+    }
 
-    context 'when content size exceeds threshold' do
-      invalid_medium_north_review = Faker::Lorem.sentence(word_count: 51)
-      invalid_long_north_review = Faker::Lorem.sentence(word_count: 101)
-      invalid_medium_south_review = Faker::Lorem.sentence(word_count: 61)
-      invalid_long_south_review = Faker::Lorem.sentence(word_count: 121)
+    invalid_word_counts = {
+      NorthUtility: {
+        review: [51, 101],
+        critique: []
+      },
+      SouthUtility: {
+        review: [61, 121],
+        critique: []
+      }
+    }
 
-      include_examples 'a invalid note', invalid_medium_north_review, 'review', 'NorthUtility'
-      include_examples 'a invalid note', invalid_long_north_review, 'review', 'NorthUtility'
-      include_examples 'a invalid note', invalid_medium_south_review, 'review', 'SouthUtility'
-      include_examples 'a invalid note', invalid_long_south_review, 'review', 'SouthUtility'
+    %i[NorthUtility SouthUtility].each do |utility_type|
+      context "for #{utility_type}" do
+        %i[review critique].each do |note_type|
+          context "when note_type is #{note_type}" do
+            valid_word_counts[utility_type][note_type].each do |word_count|
+              context "with valid content length of #{word_count} words" do
+                include_examples 'a valid note', utility_type, note_type, word_count
+              end
+            end
+
+            invalid_word_counts[utility_type][note_type].each do |word_count|
+              context "with invalid content length of #{word_count} words" do
+                include_examples 'an invalid note', utility_type, note_type, word_count
+              end
+            end
+          end
+        end
+      end
     end
   end
-
-  
 end
