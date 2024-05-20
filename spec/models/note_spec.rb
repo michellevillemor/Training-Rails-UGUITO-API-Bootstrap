@@ -1,5 +1,27 @@
 require 'rails_helper'
 
+RSpec.shared_context 'with note setup' do |utility_type, _note_type, word_count|
+  let(:utility) { create(:utility, type: utility_type.to_s) }
+  let(:content) { Faker::Lorem.sentence(word_count: word_count) }
+end
+
+RSpec.shared_examples 'a valid note' do |utility_type, note_type, word_count|
+  include_context 'with note setup', utility_type, note_type, word_count
+
+  it "creates a valid #{note_type} note for #{utility_type} with #{word_count} words" do
+    note = create(:note, content: content, note_type: note_type, utility: utility)
+    expect(note).not_to be nil
+  end
+end
+
+RSpec.shared_examples 'an invalid note' do |utility_type, note_type, word_count|
+  include_context 'with note setup', utility_type, note_type, word_count
+
+  it "throws error when creating an invalid #{note_type} for #{utility_type} with #{word_count} words" do
+    expect { create(:note, content: content, note_type: note_type, utility: utility) }.to raise_error(ActiveRecord::RecordInvalid)
+  end
+end
+
 RSpec.describe Note, type: :model do
   subject(:note) do
     create(:note)
@@ -9,63 +31,91 @@ RSpec.describe Note, type: :model do
     it { is_expected.to validate_presence_of(value) }
   end
 
-  it { is_expected.to belong_to(:user) }
+  it { expect(subject).to be_valid }
 
-  it 'has a valid factory' do
-    expect(subject).to be_valid
-  end
+  describe 'associations' do
+    it { is_expected.to belong_to(:user) }
 
-  context 'when content size is within thresholds' do
-    let(:valid_north_review) { Array.new(50, 'valid').join(' ') }
-    let(:valid_south_review) { Array.new(60, 'valid').join(' ') }
-    let(:critique) { Array.new(70, 'valid').join(' ') }
+    it 'can access utility through user' do
+      utility = create(:utility)
+      user = create(:user, utility: utility)
+      note = create(:note, user: user, utility: utility)
 
-    it 'creates a valid review for north utility' do
-      expected = { title: 'Esto es una nota', content: valid_north_review, note_type: 'review' }
-
-      custom_utility = create(:utility, type: 'NorthUtility')
-
-      note = create(:note, content: valid_north_review, utility: custom_utility)
-
-      expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
-    end
-
-    it 'creates a valid review for south utility' do
-      expected = { title: 'Esto es una nota', content: valid_south_review, note_type: 'review' }
-
-      custom_utility = create(:utility, type: 'SouthUtility')
-
-      note = create(:note, content: valid_south_review, utility: custom_utility)
-
-      expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
-    end
-
-    it 'creates a valid critique' do
-      expected = { title: 'Esto es una nota', content: critique, note_type: 'critique' }
-      note = create(:note, note_type: 'critique', content: critique)
-
-      expect(note.attributes.symbolize_keys.slice(:title, :content, :note_type)).to eq(expected)
+      expect(note.utility).to eq(utility)
     end
   end
 
-  context 'when content size exceeds threshold' do
-    let(:invalid_north_review) { Array.new(51, 'invalid').join(' ') }
-    let(:invalid_south_review) { Array.new(61, 'invalid').join(' ') }
-
-    it 'throws error when creating an invalid review for north utility' do
-      custom_utility = create(:utility, type: 'NorthUtility')
-
-      expect do
-        create(:note, utility: custom_utility, content: invalid_north_review)
-      end.to raise_error('La validación falló: El contenido de la review es mayor a 50 para NorthUtility')
+  describe 'enum note_type' do
+    it 'defines the correct enum values' do
+      expect(described_class.note_types).to eq({ 'review' => 0, 'critique' => 1 })
     end
 
-    it 'throws error when creating an invalid review for south utility' do
-      custom_utility = create(:utility, type: 'SouthUtility')
+    it 'sets note_type to review' do
+      note.update(note_type: 'review')
+      expect(note.note_type).to eq('review')
+    end
 
-      expect do
-        create(:note, utility: custom_utility, content: invalid_south_review)
-      end.to raise_error('La validación falló: El contenido de la review es mayor a 60 para SouthUtility')
+    it 'sets note_type to critique' do
+      note.update(note_type: 'critique')
+      expect(note.note_type).to eq('critique')
+    end
+
+    it 'raises an error when setting an invalid note_type' do
+      expect { note.update!(note_type: 'invalid_type') }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#word_count' do
+    let(:content_with_words) { Faker::Lorem.sentence(word_count: 5) }
+
+    it 'counts words in content' do
+      note = create(:note, content: content_with_words)
+
+      expect(note.word_count).to eq(5)
+    end
+  end
+
+  describe '#validate_content_length' do
+    valid_word_counts = {
+      NorthUtility: {
+        review: [50],
+        critique: [50, 100, 101]
+      },
+      SouthUtility: {
+        review: [60],
+        critique: [60, 120, 121]
+      }
+    }
+
+    invalid_word_counts = {
+      NorthUtility: {
+        review: [51, 101],
+        critique: []
+      },
+      SouthUtility: {
+        review: [61, 121],
+        critique: []
+      }
+    }
+
+    %i[NorthUtility SouthUtility].each do |utility_type|
+      context "for #{utility_type}" do
+        %i[review critique].each do |note_type|
+          context "when note_type is #{note_type}" do
+            valid_word_counts[utility_type][note_type].each do |word_count|
+              context "with valid content length of #{word_count} words" do
+                include_examples 'a valid note', utility_type, note_type, word_count
+              end
+            end
+
+            invalid_word_counts[utility_type][note_type].each do |word_count|
+              context "with invalid content length of #{word_count} words" do
+                include_examples 'an invalid note', utility_type, note_type, word_count
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

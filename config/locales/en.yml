@@ -38,4 +38,4 @@ en:
         content: "The content"
     errors:
       note:
-        content_length: "of the %{note_type} is bigger than %{threshold} for %{utility_type}"
+        content_length: "of the %{note_type} is bigger than %{threshold} for %{utility_name}"
