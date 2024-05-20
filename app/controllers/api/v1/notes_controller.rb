@@ -27,8 +27,8 @@ module Api
       end
 
       def paginated_notes(notes)
-        page = params[:page] || 1
-        page_size = params[:page_size] || 10
+        page = params[:page] || 1 # page default
+        page_size = params[:page_size] || 10 # page size default
         notes.page(page).per(page_size)
       end
 
