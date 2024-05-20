@@ -10,14 +10,6 @@ describe Api::V1::NotesController, type: :controller do
       ActiveModel::Serializer::CollectionSerializer.new(notes_expected, serializer: IndexNoteSerializer).to_json
     end
 
-    let!(:expected_desc_order) do
-      ActiveModel::Serializer::CollectionSerializer.new(notes_expected.sort_by(&:created_at).reverse, serializer: IndexNoteSerializer).to_json
-    end
-
-    let!(:expected_asc_order) do
-      ActiveModel::Serializer::CollectionSerializer.new(notes_expected.sort_by(&:created_at), serializer: IndexNoteSerializer).to_json
-    end
-        
     context 'when fetching all the notes' do
       let(:notes_expected) { notes }
       
@@ -48,21 +40,7 @@ describe Api::V1::NotesController, type: :controller do
       end
     end
     
-    context 'when fetching notes using type filter review' do
-      let(:notes_expected) { review_notes }
-      
-      before { get :index, params: { type: 'review' } }
-      
-      it 'responds with expected notes' do
-        expect(response_body.to_json).to eq(expected)
-      end
-      
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'when fetching notes using type filter critique' do
+    context 'when fetching notes using note_type filter' do
       let(:notes_expected) { critique_notes }
       
       before { get :index, params: { type: 'critique' } }
@@ -76,27 +54,13 @@ describe Api::V1::NotesController, type: :controller do
       end
     end
 
-    context 'when fetching notes using asc creation order' do
-      let(:notes_expected) { notes }
-
-      before { get :index, params: { order: 'asc' } }
-      
-      it 'responds with expected notes in asc order' do
-        expect(response_body.to_json).to eq(expected_asc_order)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
     context 'when fetching notes using desc creation order' do
-      let(:notes_expected) { notes }
+      let(:notes_expected) { notes.sort_by(&:created_at).reverse }
 
       before { get :index, params: { order: 'desc' } }
 
       it 'responds with expected notes in desc order' do
-        expect(response_body.to_json).to eq(expected_desc_order)
+        expect(response_body.to_json).to eq(expected)
       end
 
       it 'responds with 200 status' do
@@ -105,12 +69,12 @@ describe Api::V1::NotesController, type: :controller do
     end
 
     context 'when fetching notes using creation order and type filter' do
-      let(:notes_expected) { review_notes }
+      let(:notes_expected) { review_notes.sort_by(&:created_at).reverse }
 
       before { get :index, params: { order: 'desc', type: 'review' } }
       
       it 'responds with expected notes in desc order and review type' do
-        expect(response_body.to_json).to eq(expected_desc_order)
+        expect(response_body.to_json).to eq(expected)
       end
 
       it 'responds with 200 status' do
