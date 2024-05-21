@@ -23,8 +23,10 @@ shared_examples 'an invalid note' do |utility_type, note_type, word_count|
 end
 
 shared_examples 'counts content length' do
-  note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
-  expect(note.content_length).to eq(expected)
+  it "returns length string" do
+    note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
+    expect(note.content_length).to eq(expected)
+  end
 end
 
 describe Note, type: :model do
@@ -60,52 +62,51 @@ describe Note, type: :model do
   end
 
   describe '#content_length' do
-
     context 'for North Utility' do 
-      utility = build(:north_utility)
+      let(:utility) { build(:north_utility) }
 
       context 'when short content' do
-        word_count = 5
-        expected = 'short'
+        let(:word_count) { 5 }
+        let(:expected) { 'short' }
 
         include_examples 'counts content length'
       end
 
       context 'when medium content' do
-        word_count = 80
-        expected = 'medium'
+        let(:word_count) { 80 }
+        let(:expected) { 'medium' }
 
         include_examples 'counts content length'
       end
 
       context 'when long content' do
-        word_count = 120
-        expected = 'long'
+        let(:word_count) { 120 }
+        let(:expected) { 'long' }
 
         include_examples 'counts content length'
       end
     end
 
     context 'for South Utility' do 
-      utility = build(:south_utility)
+      let(:utility) { build(:south_utility) }
 
       context 'when short content' do
-        word_count = 5
-        expected = 'short'
+        let(:word_count) { 5 }
+        let(:expected) { 'short' }
 
         include_examples 'counts content length'
       end
 
       context 'when medium content' do
-        word_count = 110
-        expected = 'medium'
+        let(:word_count) { 110 }
+        let(:expected) { 'medium' }
 
         include_examples 'counts content length'
       end
 
       context 'when long content' do
-        word_count = 150
-        expected = 'long'
+        let(:word_count) { 150 }
+        let(:expected) { 'long' }
 
         include_examples 'counts content length'
       end
