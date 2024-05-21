@@ -6,7 +6,7 @@ describe Api::V1::NotesController, type: :controller do
     let!(:critique_notes) { create_list(:note, 7, note_type: 'critique') }
     let(:notes) { review_notes + critique_notes }
 
-    let!(:expected) do
+    let(:expected) do
       ActiveModel::Serializer::CollectionSerializer.new(notes_expected, serializer: IndexNoteSerializer).to_json
     end
 
@@ -29,7 +29,7 @@ describe Api::V1::NotesController, type: :controller do
     end
 
     context 'when fetching notes using note_type filter' do
-      ['review','critique'].each do |note_type|
+      %w[review critique].each do |note_type|
         let(:notes_expected) { note_type == 'review' ? review_notes : critique_notes }
 
         before { get :index, params: { type: note_type } }
@@ -39,7 +39,7 @@ describe Api::V1::NotesController, type: :controller do
     end
 
     context 'when sorting notes by creation order' do
-      ['asc','desc'].each do |direction|
+      %w[asc desc].each do |direction|
         let(:notes_expected) { direction == 'asc' ? notes.sort_by(&:created_at) : notes.sort_by(&:created_at).reverse }
 
         before { get :index, params: { order: direction } }
