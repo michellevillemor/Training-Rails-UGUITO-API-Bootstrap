@@ -6,29 +6,30 @@ module Api
       def index
         render json: notes_filtered, status: :ok, each_serializer: IndexNoteSerializer
       end
-      
+
       def show
         render json: show_note, status: :ok, serializer: ShowNoteSerializer
       end
-      
+
       private
 
       def notes
         current_user.notes
       end
-      
+
       def filter_notes_by_type
-        filtering_params[:note_type].present? ? Note.where(note_type: filtering_params[:note_type]) : notes
+        note_type = filtering_params[:note_type]
+        note_type.present? ? Note.where(note_type: filtering_params[:note_type]) : notes
       end
 
       def sort_notes_by_order(notes)
-        order = %w[asc desc].include?(filtering_params[:order]) ? filtering_params[:order] : 'asc'
+        order = %w[asc desc].include?(sortering_params[:order]) ? sortering_params[:order] : 'asc'
         notes.order(created_at: order)
       end
 
       def paginated_notes(notes)
-        page = params[:page] || 1 # page default
-        page_size = params[:page_size] || 10 # page size default
+        page = params[:page]
+        page_size = params[:page_size]
         notes.page(page).per(page_size)
       end
 
@@ -47,6 +48,9 @@ module Api
         notes.find(params.require(:id))
       end
       
+      def sortering_params
+        params.permit(:order)
+      end
     end
   end
 end
