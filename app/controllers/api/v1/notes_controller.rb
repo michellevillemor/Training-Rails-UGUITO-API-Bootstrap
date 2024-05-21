@@ -40,8 +40,8 @@ module Api
       end
       
       def filtering_params
-        permitted = params.permit(:type, :order)
-        { note_type: permitted[:type], order: permitted[:order] }
+        permitted = params.permit(:type)
+        { note_type: permitted[:type] }
       end
 
       def show_note
