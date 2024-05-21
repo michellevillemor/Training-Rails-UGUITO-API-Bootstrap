@@ -38,7 +38,7 @@ module Api
         notes = sort_notes_by_order notes
         paginated_notes notes
       end
-      
+
       def filtering_params
         permitted = params.permit(:type)
         { note_type: permitted[:type] }
@@ -47,7 +47,7 @@ module Api
       def show_note
         notes.find(params.require(:id))
       end
-      
+
       def sortering_params
         params.permit(:order)
       end

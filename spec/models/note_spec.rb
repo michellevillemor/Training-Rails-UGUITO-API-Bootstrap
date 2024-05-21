@@ -23,7 +23,7 @@ shared_examples 'an invalid note' do |utility_type, note_type, word_count|
 end
 
 shared_examples 'counts content length' do
-  it "returns length string" do
+  it 'returns length string' do
     note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
     expect(note.content_length).to eq(expected)
   end
@@ -43,7 +43,7 @@ describe Note, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:user) }
 
-    it { is_expected.to have_one(:utility)}
+    it { is_expected.to have_one(:utility) }
   end
 
   describe 'enum note_type' do
@@ -51,7 +51,7 @@ describe Note, type: :model do
   end
 
   describe '#word_count' do
-    let(:random_word_count) { Faker::Number.within(range: 1..50)}
+    let(:random_word_count) { Faker::Number.within(range: 1..50) }
     let(:content_with_words) { Faker::Lorem.sentence(word_count: random_word_count) }
 
     it 'counts words in content' do
@@ -62,7 +62,7 @@ describe Note, type: :model do
   end
 
   describe '#content_length' do
-    context 'for North Utility' do 
+    context 'with North Utility' do
       let(:utility) { build(:north_utility) }
 
       context 'when short content' do
@@ -87,7 +87,7 @@ describe Note, type: :model do
       end
     end
 
-    context 'for South Utility' do 
+    context 'with South Utility' do
       let(:utility) { build(:south_utility) }
 
       context 'when short content' do
@@ -141,13 +141,13 @@ describe Note, type: :model do
         %i[review critique].each do |note_type|
           context "when note_type is #{note_type}" do
             valid_word_counts[utility_type][note_type].each do |word_count|
-              context "with valid content length" do
+              context 'with valid content length' do
                 include_examples 'a valid note', utility_type, note_type, word_count
               end
             end
 
             invalid_word_counts[utility_type][note_type].each do |word_count|
-              context "with invalid content length" do
+              context 'with invalid content length' do
                 include_examples 'an invalid note', utility_type, note_type, word_count
               end
             end
