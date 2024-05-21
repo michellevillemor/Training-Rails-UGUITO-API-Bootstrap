@@ -1,23 +1,23 @@
 module Api
   module V1
     class NotesController < ApplicationController
-      
       def index
         render json: notes_filtered, status: :ok, each_serializer: IndexNoteSerializer
       end
-      
+
       def show
         render json: show_note, status: :ok, serializer: ShowNoteSerializer
       end
-      
+
       private
 
       def notes
         Note.all
       end
-      
+
       def filter_notes_by_type
-        filtering_params[:note_type].present? ? Note.where(note_type: filtering_params[:note_type]) : notes
+        note_type = filtering_params[:note_type]
+        note_type.present? ? Note.where(note_type: filtering_params[:note_type]) : notes
       end
 
       def sort_notes_by_order(notes)
@@ -40,12 +40,11 @@ module Api
       def show_note
         notes.find(params.require(:id))
       end
-      
+
       def filtering_params
         permitted = params.permit(:type, :order)
         { note_type: permitted[:type], order: permitted[:order] }
       end
-      
     end
   end
 end
