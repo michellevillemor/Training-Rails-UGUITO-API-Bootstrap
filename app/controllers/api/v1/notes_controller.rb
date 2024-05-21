@@ -12,7 +12,7 @@ module Api
       private
 
       def notes
-        Note.all
+        @notes ||= Note.all
       end
 
       def filter_notes_by_type
@@ -21,13 +21,13 @@ module Api
       end
 
       def sort_notes_by_order(notes)
-        order = %w[asc desc].include?(filtering_params[:order]) ? filtering_params[:order] : 'asc'
+        order = %w[asc desc].include?(sortering_params[:order]) ? sortering_params[:order] : 'asc'
         notes.order(created_at: order)
       end
 
       def paginated_notes(notes)
-        page = params[:page] || 1 # page default
-        page_size = params[:page_size] || 10 # page size default
+        page = params[:page]
+        page_size = params[:page_size]
         notes.page(page).per(page_size)
       end
 
@@ -44,6 +44,10 @@ module Api
       def filtering_params
         permitted = params.permit(:type, :order)
         { note_type: permitted[:type], order: permitted[:order] }
+      end
+
+      def sortering_params
+        params.permit(:order)
       end
     end
   end

@@ -15,13 +15,7 @@ describe Api::V1::NotesController, type: :controller do
 
       before { get :index }
 
-      it 'responds with the expected notes json' do
-        expect(response_body.to_json).to eq(expected)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'success request response'
     end
 
     context 'when fetching notes with page and page size params' do
@@ -31,40 +25,26 @@ describe Api::V1::NotesController, type: :controller do
 
       before { get :index, params: { page: page, page_size: page_size } }
 
-      it 'responds with the expected notes' do
-        expect(response_body.to_json).to eq(expected)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'success request response'
     end
 
     context 'when fetching notes using note_type filter' do
-      let(:notes_expected) { critique_notes }
+      ['review','critique'].each do |note_type|
+        let(:notes_expected) { note_type == 'review' ? review_notes : critique_notes }
 
-      before { get :index, params: { type: 'critique' } }
+        before { get :index, params: { type: note_type } }
 
-      it 'responds with expected notes' do
-        expect(response_body.to_json).to eq(expected)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
+        it_behaves_like 'success request response'
       end
     end
 
     context 'when fetching notes using desc creation order' do
-      let(:notes_expected) { notes.sort_by(&:created_at).reverse }
+      ['asc','desc'].each do |direction|
+        let(:notes_expected) { direction == 'asc' ? notes.sort_by(&:created_at) : notes.sort_by(&:created_at).reverse }
 
-      before { get :index, params: { order: 'desc' } }
+        before { get :index, params: { order: direction } }
 
-      it 'responds with expected notes in desc order' do
-        expect(response_body.to_json).to eq(expected)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
+        it_behaves_like 'success request response'
       end
     end
 
@@ -73,13 +53,7 @@ describe Api::V1::NotesController, type: :controller do
 
       before { get :index, params: { order: 'desc', type: 'review' } }
 
-      it 'responds with expected notes in desc order and review type' do
-        expect(response_body.to_json).to eq(expected)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'success request response'
     end
   end
 
@@ -90,13 +64,7 @@ describe Api::V1::NotesController, type: :controller do
 
       before { get :show, params: { id: note.id } }
 
-      it 'responds with the expected note json' do
-        expect(response_body.to_json).to eq(expected)
-      end
-
-      it 'responds with 200 status' do
-        expect(response).to have_http_status(:ok)
-      end
+      it_behaves_like 'success request response'
     end
 
     context 'when fetching a invalid note' do
