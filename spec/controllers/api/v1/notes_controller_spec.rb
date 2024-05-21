@@ -38,7 +38,7 @@ describe Api::V1::NotesController, type: :controller do
       end
     end
 
-    context 'when fetching notes using desc creation order' do
+    context 'when sorting notes by creation order' do
       ['asc','desc'].each do |direction|
         let(:notes_expected) { direction == 'asc' ? notes.sort_by(&:created_at) : notes.sort_by(&:created_at).reverse }
 
