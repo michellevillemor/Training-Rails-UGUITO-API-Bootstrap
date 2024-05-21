@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-RSpec.shared_context 'with note setup' do |utility_type, _note_type, word_count|
+shared_context 'with note setup' do |utility_type, _note_type, word_count|
   let(:utility) { create(:utility, type: utility_type.to_s) }
   let(:content) { Faker::Lorem.sentence(word_count: word_count) }
 end
 
-RSpec.shared_examples 'a valid note' do |utility_type, note_type, word_count|
+shared_examples 'a valid note' do |utility_type, note_type, word_count|
   include_context 'with note setup', utility_type, note_type, word_count
 
   it "creates a valid #{note_type} note for #{utility_type} with #{word_count} words" do
@@ -14,7 +14,7 @@ RSpec.shared_examples 'a valid note' do |utility_type, note_type, word_count|
   end
 end
 
-RSpec.shared_examples 'an invalid note' do |utility_type, note_type, word_count|
+shared_examples 'an invalid note' do |utility_type, note_type, word_count|
   include_context 'with note setup', utility_type, note_type, word_count
 
   it "throws error when creating an invalid #{note_type} for #{utility_type} with #{word_count} words" do
@@ -22,7 +22,12 @@ RSpec.shared_examples 'an invalid note' do |utility_type, note_type, word_count|
   end
 end
 
-RSpec.describe Note, type: :model do
+shared_examples 'counts content length' do
+  note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
+  expect(note.content_length).to eq(expected)
+end
+
+describe Note, type: :model do
   subject(:note) do
     create(:note)
   end
@@ -36,42 +41,74 @@ RSpec.describe Note, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:user) }
 
-    it 'can access utility through user' do
-      utility = create(:utility)
-      user = create(:user, utility: utility)
-      note = create(:note, user: user, utility: utility)
-
-      expect(note.utility).to eq(utility)
-    end
+    it { is_expected.to have_one(:utility)}
   end
 
   describe 'enum note_type' do
-    it 'defines the correct enum values' do
-      expect(described_class.note_types).to eq({ 'review' => 0, 'critique' => 1 })
-    end
-
-    it 'sets note_type to review' do
-      note.update(note_type: 'review')
-      expect(note.note_type).to eq('review')
-    end
-
-    it 'sets note_type to critique' do
-      note.update(note_type: 'critique')
-      expect(note.note_type).to eq('critique')
-    end
-
-    it 'raises an error when setting an invalid note_type' do
-      expect { note.update!(note_type: 'invalid_type') }.to raise_error(ArgumentError)
-    end
+    it { expect(note).to define_enum_for(:note_type).with_values(review: 0, critique: 1) }
   end
 
   describe '#word_count' do
-    let(:content_with_words) { Faker::Lorem.sentence(word_count: 5) }
+    let(:random_word_count) { Faker::Number.number(digits: 2)}
+    let(:content_with_words) { Faker::Lorem.sentence(word_count: random_word_count) }
 
     it 'counts words in content' do
       note = create(:note, content: content_with_words)
 
-      expect(note.word_count).to eq(5)
+      expect(note.word_count).to eq(random_word_count)
+    end
+  end
+
+  describe '#content_length' do
+
+    context 'for North Utility' do 
+      utility = build(:north_utility)
+
+      context 'when short content' do
+        word_count = 5
+        expected = 'short'
+
+        include_examples 'counts content length'
+      end
+
+      context 'when medium content' do
+        word_count = 80
+        expected = 'medium'
+
+        include_examples 'counts content length'
+      end
+
+      context 'when long content' do
+        word_count = 120
+        expected = 'long'
+
+        include_examples 'counts content length'
+      end
+    end
+
+    context 'for South Utility' do 
+      utility = build(:south_utility)
+
+      context 'when short content' do
+        word_count = 5
+        expected = 'short'
+
+        include_examples 'counts content length'
+      end
+
+      context 'when medium content' do
+        word_count = 110
+        expected = 'medium'
+
+        include_examples 'counts content length'
+      end
+
+      context 'when long content' do
+        word_count = 150
+        expected = 'long'
+
+        include_examples 'counts content length'
+      end
     end
   end
 
@@ -103,13 +140,13 @@ RSpec.describe Note, type: :model do
         %i[review critique].each do |note_type|
           context "when note_type is #{note_type}" do
             valid_word_counts[utility_type][note_type].each do |word_count|
-              context "with valid content length of #{word_count} words" do
+              context "with valid content length" do
                 include_examples 'a valid note', utility_type, note_type, word_count
               end
             end
 
             invalid_word_counts[utility_type][note_type].each do |word_count|
-              context "with invalid content length of #{word_count} words" do
+              context "with invalid content length" do
                 include_examples 'an invalid note', utility_type, note_type, word_count
               end
             end
