@@ -51,11 +51,11 @@ describe Note, type: :model do
   end
 
   describe '#word_count' do
-    let(:random_word_count) { Faker::Number.number(digits: 2)}
+    let(:random_word_count) { Faker::Number.within(range: 1..50)}
     let(:content_with_words) { Faker::Lorem.sentence(word_count: random_word_count) }
 
     it 'counts words in content' do
-      note = create(:note, content: content_with_words)
+      note = build(:note, content: content_with_words)
 
       expect(note.word_count).to eq(random_word_count)
     end
