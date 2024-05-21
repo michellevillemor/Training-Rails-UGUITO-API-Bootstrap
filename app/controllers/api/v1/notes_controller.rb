@@ -13,13 +13,15 @@ module Api
 
       def create
         note = current_user.notes.new creating_params
+        saved_note = note.save
 
-        if creating_params.empty?
-          missing_parameters_error
-        elsif note.save
-          resource_created note
-        else
-          validation_error note
+        if note.errors.empty?
+          resource_created(note)
+        else 
+          binding.pry
+          note.errors.each do |err|
+            err.type == :blank ? missing_parameters_error : validation_error(note)
+          end
         end
       end
 
@@ -66,8 +68,6 @@ module Api
 
       def creating_params
         params.require(:note).permit(:title, :note_type, :content)
-      rescue ActionController::ParameterMissing
-        {}
       end
     end
   end

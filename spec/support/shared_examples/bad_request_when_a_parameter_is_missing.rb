@@ -4,6 +4,7 @@ shared_examples 'bad request when a parameter is missing' do
   end
 
   it 'returns an error message' do
+    binding.pry
     expect(response_body['errors'].first['message'])
       .to eq I18n.t('errors.messages.internal_server_error')
   end

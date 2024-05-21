@@ -43,7 +43,7 @@ describe Api::V1::NotesController, type: :controller do
   
       context 'when fetching notes sorting by creation order' do
         ['asc','desc'].each do |direction|
-          let(:notes_expected) { direction == 'asc' ? notes.sort_by(&:created_at) : notes.sort_by(&:created_at).reverse }
+          let(:notes_expected) { direction == 'asc' ? user_notes.sort_by(&:created_at) : user_notes.sort_by(&:created_at).reverse }
   
           before { get :index, params: { order: direction } }
   
@@ -119,20 +119,16 @@ describe Api::V1::NotesController, type: :controller do
 
         before { post :create, params: valid_attributes }
 
-        it 'responds with the success message' do
-          expect(response_body['message']).to eq(I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note')}))
-        end
+        let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note')}) }
 
-        it 'responds with 201 status' do
-          expect(response).to have_http_status(:created)
-        end
+        it_behaves_like 'success post request with message'
       end
 
       context 'when required parameters are missing' do
         let(:missing_attributes) do
           {
             note: {
-              title: '',
+              title: nil,
               note_type: 'review',
               content: ''
             }
@@ -141,15 +137,7 @@ describe Api::V1::NotesController, type: :controller do
 
         before { post :create, params: missing_attributes }
 
-        it 'responds with error message' do
-          response_body['errors'].each do | error |
-            expect(error['detail']).to eq(I18n.t('activerecord.errors.messages.invalid_attribute', { attribute: error['attribute'] }))
-          end
-        end
-
-        it 'responds with 422 status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        it_behaves_like 'bad request when a parameter is missing'
       end
 
       context 'when the note type is invalid' do
@@ -165,13 +153,7 @@ describe Api::V1::NotesController, type: :controller do
 
         before { post :create, params: invalid_type_attributes }
 
-        it 'responds with error message' do
-          expect(response_body['error']).to eq('Note type is not included in the list')
-        end
-
-        it 'responds with 422 status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        it_behaves_like 'unprocessable entity with message'
       end
 
       context 'when the note content length exceeds the limit for reviews' do
@@ -187,13 +169,7 @@ describe Api::V1::NotesController, type: :controller do
 
         before { post :create, params: long_content_attributes }
 
-        it 'responds with error message' do
-          expect(response_body['error']).to eq('Una reseña no puede superar las 50 palabras.')
-        end
-
-        it 'responds with 422 status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
+        it_behaves_like 'unprocessable entity with message'
       end
     end
 

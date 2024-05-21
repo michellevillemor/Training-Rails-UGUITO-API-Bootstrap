@@ -25,20 +25,33 @@ class ApplicationController < ActionController::Base
   end
 
   def validation_error(resource)
-    resource_name = resource.class.name.downcase
-
-    error_messages = resource.errors.messages.flat_map do |attribute, messages|
-      messages.map do |message|
-        attribute_name = I18n.t("activerecord.attributes.#{resource_name}.#{attribute}")
-        # message = I18n.t('activerecord.errors.messages.invalid_attribute', { attribute: attribute_name })
-        message = I18n.t("activerecord.errors.invalid_attribute.#{attribute}")
-
-        { status: '422', title: 'Unprocessable Entity', message: message, attribute: attribute_name, code: '422' }
-      end
-    end
-    
-    render json: { errors: error_messages }, status: :unprocessable_entity
+    binding.pry
+    render json: {
+      errors: [
+        {
+          status: '400',
+          title: 'Bad Request',
+          detail: resource.errors,
+          code: '100'
+        }
+      ]
+    }, status: :bad_request
   end
+
+  # def validation_error(resource)
+  #   resource_name = resource.class.name.downcase
+
+  #   error_messages = resource.errors.messages.flat_map do |attribute, messages|
+  #     messages.map do |message|
+  #       attribute_name = I18n.t("activerecord.attributes.#{resource_name}.#{attribute}")
+  #       message = I18n.t("activerecord.errors.#{resource_name}.invalid_attribute.#{attribute}")
+
+  #       { status: '422', title: 'Unprocessable Entity', message: message, attribute: attribute_name, code: '422' }
+  #     end
+  #   end
+    
+  #   render json: { errors: error_messages }, status: :unprocessable_entity
+  # end
 
   def render_resource(resource)
     resource.errors.empty? ? resource_created(resource) : validation_error(resource)
