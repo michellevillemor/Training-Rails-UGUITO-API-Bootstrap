@@ -132,4 +132,107 @@ describe Api::V1::NotesController, type: :controller do
       end
     end
   end
+
+  describe 'POST #create' do
+    let(:valid_attributes) do
+      {
+        note: {
+          title: 'Reseña',
+          note_type: 'review',
+          content: Faker::Lorem.sentence(word_count: 5)
+        }
+      }
+    end
+
+    context 'when there is a user logged in' do
+      include_context 'with authenticated user'
+
+      context 'when the note is created successfully' do
+
+        before { post :create, params: valid_attributes }
+
+        it 'responds with the success message' do
+          expect(response_body['message']).to eq(I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note')}))
+        end
+
+        it 'responds with 201 status' do
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      context 'when required parameters are missing' do
+        let(:missing_attributes) do
+          {
+            note: {
+              title: '',
+              note_type: 'review',
+              content: ''
+            }
+          }
+        end
+
+        before { post :create, params: missing_attributes }
+
+        it 'responds with error message' do
+          response_body['errors'].each do | error |
+            expect(error['detail']).to eq(I18n.t('activerecord.errors.messages.invalid_attribute', { attribute: error['attribute'] }))
+          end
+        end
+
+        it 'responds with 422 status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when the note type is invalid' do
+        let(:invalid_type_attributes) do
+          {
+            note: {
+              title: Faker::Lorem.word,
+              note_type: 'invalid_type',
+              content: Faker::Lorem.sentence(word_count: 5)
+            }
+          }
+        end
+
+        before { post :create, params: invalid_type_attributes }
+
+        it 'responds with error message' do
+          expect(response_body['error']).to eq('Note type is not included in the list')
+        end
+
+        it 'responds with 422 status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when the note content length exceeds the limit for reviews' do
+        let(:long_content_attributes) do
+          {
+            note: {
+              title: 'Reseña',
+              note_type: 'review',
+              content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' * 20
+            }
+          }
+        end
+
+        before { post :create, params: long_content_attributes }
+
+        it 'responds with error message' do
+          expect(response_body['error']).to eq('Una reseña no puede superar las 50 palabras.')
+        end
+
+        it 'responds with 422 status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'when there is not a user logged in' do
+      before { post :create, params: valid_attributes }
+
+      it_behaves_like 'unauthorized'
+    end
+  end
 end

@@ -25,16 +25,19 @@ class ApplicationController < ActionController::Base
   end
 
   def validation_error(resource)
-    render json: {
-      errors: [
-        {
-          status: '400',
-          title: 'Bad Request',
-          detail: resource.errors,
-          code: '100'
-        }
-      ]
-    }, status: :bad_request
+    resource_name = resource.class.name.downcase
+
+    error_messages = resource.errors.messages.flat_map do |attribute, messages|
+      messages.map do |message|
+        attribute_name = I18n.t("activerecord.attributes.#{resource_name}.#{attribute}")
+        # message = I18n.t('activerecord.errors.messages.invalid_attribute', { attribute: attribute_name })
+        message = I18n.t("activerecord.errors.invalid_attribute.#{attribute}")
+
+        { status: '422', title: 'Unprocessable Entity', message: message, attribute: attribute_name, code: '422' }
+      end
+    end
+    
+    render json: { errors: error_messages }, status: :unprocessable_entity
   end
 
   def render_resource(resource)
@@ -42,7 +45,10 @@ class ApplicationController < ActionController::Base
   end
 
   def resource_created(resource)
-    render json: resource, status: :created
+    resource_name = resource.class.name.downcase
+    message = I18n.t('activerecord.success.create', { resource: I18n.t("activerecord.models.#{resource_name}") })
+
+    render json: { message: message }, status: :created
   end
 
   def access_denied(exception)
@@ -52,5 +58,10 @@ class ApplicationController < ActionController::Base
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name document_number])
+  end
+
+  def missing_parameters_error
+    error_message = I18n.t('activerecord.errors.messages.missing_parameters')
+    render json: { error: error_message }, status: :bad_request
   end
 end

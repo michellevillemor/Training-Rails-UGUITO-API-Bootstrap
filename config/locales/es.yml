@@ -30,11 +30,20 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 es:
-  hello: "Hola Mundo!"
   activerecord:
+    models:
+      note: "Nota"
     attributes:
       note:
         content: "El contenido"
+        title: "El título"
+        note_type: "El tipo de nota"
     errors:
+      messages:
+        missing_parameters: "Faltan parametros requeridos."
       note:
-        content_length: "de la %{note_type} es mayor a %{threshold} para %{utility_name}"
+        invalid_attribute:
+          content: "Una %{note_type} no puede superar las %{word_count} palabras"
+          title: "El título no es válido"
+    success:
+      create: "%{resource} creada con éxito."

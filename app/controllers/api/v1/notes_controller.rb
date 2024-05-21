@@ -10,7 +10,19 @@ module Api
       def show
         render json: show_note, status: :ok, serializer: ShowNoteSerializer
       end
-      
+
+      def create
+        note = current_user.notes.new creating_params
+
+        if creating_params.empty?
+          missing_parameters_error
+        elsif note.save
+          resource_created note
+        else
+          validation_error note
+        end
+      end
+
       private
 
       def notes
@@ -46,7 +58,12 @@ module Api
       def show_note
         notes.find(params.require(:id))
       end
-      
+
+      def creating_params
+        params.require(:note).permit(:title, :note_type, :content)
+      rescue ActionController::ParameterMissing
+        {}
+      end
     end
   end
 end
