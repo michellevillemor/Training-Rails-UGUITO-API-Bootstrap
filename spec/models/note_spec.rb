@@ -37,7 +37,7 @@ describe Note, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:user) }
 
-    it { is_expected.to have_one(:utility)}
+    it { is_expected.to have_one(:utility) }
   end
 
   describe 'enum note_type' do
@@ -45,7 +45,7 @@ describe Note, type: :model do
   end
 
   describe '#word_count' do
-    let(:random_word_count) { Faker::Number.within(range: 1..50)}
+    let(:random_word_count) { Faker::Number.within(range: 1..50) }
     let(:content_with_words) { Faker::Lorem.sentence(word_count: random_word_count) }
 
     it 'counts words in content' do
@@ -56,7 +56,7 @@ describe Note, type: :model do
   end
 
   describe '#content_length' do
-    context 'with North Utility' do 
+    context 'with North Utility' do
       let(:utility) { build(:north_utility) }
 
       context 'when content is short' do
@@ -81,7 +81,7 @@ describe Note, type: :model do
       end
     end
 
-    context 'with South Utility' do 
+    context 'with South Utility' do
       let(:utility) { build(:south_utility) }
 
       context 'when content is short' do
@@ -118,7 +118,7 @@ describe Note, type: :model do
           before do
             allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
           end
-          
+
           it_behaves_like 'a valid note'
         end
 
@@ -146,7 +146,7 @@ describe Note, type: :model do
           before do
             allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
           end
-          
+
           it_behaves_like 'a valid note'
         end
 
@@ -178,7 +178,7 @@ describe Note, type: :model do
           before do
             allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
           end
-          
+
           it_behaves_like 'a valid note'
         end
 
