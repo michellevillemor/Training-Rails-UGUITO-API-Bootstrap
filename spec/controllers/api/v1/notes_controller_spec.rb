@@ -40,7 +40,10 @@ describe Api::V1::NotesController, type: :controller do
 
     context 'when sorting notes by creation order' do
       %w[asc desc].each do |direction|
-        let(:notes_expected) { direction == 'asc' ? notes.sort_by(&:created_at) : notes.sort_by(&:created_at).reverse }
+        let(:notes_expected) do
+          sorted_notes = notes.sort_by(&:created_at)
+          direction == 'asc' ? sorted_notes : sorted_notes.reverse
+        end
 
         before { get :index, params: { order: direction } }
 
