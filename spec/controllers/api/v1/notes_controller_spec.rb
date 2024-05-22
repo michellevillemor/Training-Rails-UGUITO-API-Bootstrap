@@ -35,10 +35,10 @@ describe Api::V1::NotesController, type: :controller do
         %w[review critique].each do |note_type|
           let(:notes_expected) { note_type == 'review' ? review_notes : critique_notes }
 
-            before { get :index, params: { type: note_type } }
+          before { get :index, params: { type: note_type } }
 
-            it_behaves_like 'success request response'
-          end
+          it_behaves_like 'success request response'
+        end
       end
 
       context 'when sorting notes by creation order' do
@@ -48,9 +48,9 @@ describe Api::V1::NotesController, type: :controller do
             direction == 'asc' ? sorted_notes : sorted_notes.reverse
           end
 
-            before { get :index, params: { order: direction } }
+          before { get :index, params: { order: direction } }
 
-            it_behaves_like 'success request response'
+          it_behaves_like 'success request response'
         end
       end
 
