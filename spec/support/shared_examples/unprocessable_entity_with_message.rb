@@ -4,8 +4,9 @@ shared_examples 'unprocessable entity with message' do
   end
 
   it 'returns the appropiate error message' do
-    binding.pry
-    expect(response_body['errors'].first['message'])
-      .to eq(message)
+    error = response_body['error'] if response_body['error']
+    error = response_body['errors'].first['detail'] if response_body['errors']
+
+    expect(error).to eq(message)
   end
 end

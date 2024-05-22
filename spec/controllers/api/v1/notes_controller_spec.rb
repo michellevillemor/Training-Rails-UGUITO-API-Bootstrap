@@ -155,22 +155,29 @@ describe Api::V1::NotesController, type: :controller do
         end
 
         before { post :create, params: invalid_type_attributes }
+        
+        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.note_type') }
 
         it_behaves_like 'unprocessable entity with message'
       end
 
       context 'when the note content length exceeds the limit for reviews' do
+        utility = Utility.new(type: ['NorthUtility', 'SouthUtility'].sample )
+
         let(:long_content_attributes) do
           {
             note: {
               title: 'Reseña',
               note_type: 'review',
-              content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' * 20
+              content: Faker::Lorem.sentence(word_count: 150),
+              utility: utility
             }
           }
         end
 
         before { post :create, params: long_content_attributes }
+
+        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length })}
 
         it_behaves_like 'unprocessable entity with message'
       end

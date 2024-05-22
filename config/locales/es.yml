@@ -43,7 +43,7 @@ es:
         internal_server_error: "Faltan parametros requeridos."
       note:
         invalid_attribute:
-          content: "Una %{note_type} no puede superar las %{word_count} palabras"
-          title: "El título no es válido"
+          content_length: "Una %{note_type} no puede superar las %{threshold} palabras"
+          note_type: "El tipo de nota no es válido"
     success:
       create: "%{resource} creada con éxito."

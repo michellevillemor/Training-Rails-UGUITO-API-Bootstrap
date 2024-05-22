@@ -4,7 +4,6 @@ shared_examples 'success post request with message' do
     end
   
     it 'returns the success message' do
-      binding.pry
       expect(response_body['message']).to eq(message)
     end
 end

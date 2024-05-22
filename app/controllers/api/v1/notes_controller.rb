@@ -13,16 +13,14 @@ module Api
 
       def create
         note = current_user.notes.new creating_params
-        saved_note = note.save
 
-        if note.errors.empty?
-          resource_created(note)
-        else 
-          binding.pry
-          note.errors.each do |err|
-            err.type == :blank ? missing_parameters_error : validation_error(note)
-          end
+        if note.save
+          resource_created note
+        else
+          handle_note_errors note
         end
+      rescue ArgumentError => e
+        handle_invalid_argument(e)
       end
 
       private
@@ -68,6 +66,14 @@ module Api
 
       def creating_params
         params.require(:note).permit(:title, :note_type, :content)
+      end
+
+      def handle_note_errors(note)
+        if note.errors.details[:title].any? { |e| e[:error] == :blank }
+          missing_parameters_error
+        else
+          validation_error(note)
+        end
       end
     end
   end

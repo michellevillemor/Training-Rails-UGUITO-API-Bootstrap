@@ -25,33 +25,17 @@ class ApplicationController < ActionController::Base
   end
 
   def validation_error(resource)
-    binding.pry
     render json: {
       errors: [
         {
-          status: '400',
-          title: 'Bad Request',
-          detail: resource.errors,
+          status: '422',
+          title: 'Unprocessable Entity',
+          detail: resource.errors.messages.values.flatten.first,
           code: '100'
         }
       ]
-    }, status: :bad_request
+    }, status: :unprocessable_entity
   end
-
-  # def validation_error(resource)
-  #   resource_name = resource.class.name.downcase
-
-  #   error_messages = resource.errors.messages.flat_map do |attribute, messages|
-  #     messages.map do |message|
-  #       attribute_name = I18n.t("activerecord.attributes.#{resource_name}.#{attribute}")
-  #       message = I18n.t("activerecord.errors.#{resource_name}.invalid_attribute.#{attribute}")
-
-  #       { status: '422', title: 'Unprocessable Entity', message: message, attribute: attribute_name, code: '422' }
-  #     end
-  #   end
-    
-  #   render json: { errors: error_messages }, status: :unprocessable_entity
-  # end
 
   def render_resource(resource)
     resource.errors.empty? ? resource_created(resource) : validation_error(resource)
@@ -74,7 +58,7 @@ class ApplicationController < ActionController::Base
   end
 
   def missing_parameters_error
-    error_message = I18n.t('activerecord.errors.messages.missing_parameters')
+    error_message = I18n.t('activerecord.errors.messages.internal_server_error')
     render json: { error: error_message }, status: :bad_request
   end
 end

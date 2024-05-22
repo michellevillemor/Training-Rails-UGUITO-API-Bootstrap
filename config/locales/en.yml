@@ -40,10 +40,10 @@ en:
         note_type: "The note type"
     errors:
       messages:
-        missing_parameters: "Required parameters missing"
+        internal_server_error: "Required parameters missing"
       note:
         invalid_attribute:
-          content: "A %{note_type} cant be over %{word_count} words"
-          title: "The title is not valid"
+          content_length: "A %{note_type} cant be over %{word_count} words"
+          note_type: "The note type is invalid"
     success:
-      create: "%{resource}  successfully created."
+      create: "%{resource} successfully created."

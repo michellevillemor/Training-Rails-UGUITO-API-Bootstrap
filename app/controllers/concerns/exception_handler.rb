@@ -13,6 +13,7 @@ module ExceptionHandler
     end
     rescue_from Exceptions::UtilityUnavailableError, with: :render_utility_unavailable
     rescue_from Exceptions::InvalidParameterError, with: :render_invalid_parameter
+    rescue_from ArgumentError, with: :handle_invalid_argument
   end
 
   private
@@ -44,5 +45,22 @@ module ExceptionHandler
 
   def render_utility_unavailable
     render_error(:utility_unavailable, status: :internal_server_error)
+  end
+
+  def handle_invalid_argument(error)
+    attribute = extract_attribute_from_error_message(error.message)
+    resource = controller_name.classify
+
+    render json: {
+      error: I18n.t("activerecord.errors.#{resource.downcase}.invalid_attribute.#{attribute}", attribute: attribute)
+    }, status: :unprocessable_entity
+  end
+
+  def extract_attribute_from_error_message(message)
+    if message =~ /not a valid (\w+)/
+      Regexp.last_match(1)
+    else
+      'attribute'
+    end
   end
 end
