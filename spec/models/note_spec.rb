@@ -1,29 +1,23 @@
 require 'rails_helper'
 
-shared_context 'with note setup' do |utility_type, _note_type, word_count|
-  let(:utility) { create(:utility, type: utility_type.to_s) }
-  let(:content) { Faker::Lorem.sentence(word_count: word_count) }
-end
-
-shared_examples 'a valid note' do |utility_type, note_type, word_count|
-  include_context 'with note setup', utility_type, note_type, word_count
-
-  it "creates a valid #{note_type} note for #{utility_type} with #{word_count} words" do
-    note = create(:note, content: content, note_type: note_type, utility: utility)
-    expect(note).not_to be nil
+shared_examples 'a valid note' do
+  it 'and passes validation' do
+    note = described_class.new(note_type: note_type, utility: utility)
+    note.validate_content_length
+    expect(note.errors).to be_empty
   end
 end
 
-shared_examples 'an invalid note' do |utility_type, note_type, word_count|
-  include_context 'with note setup', utility_type, note_type, word_count
-
-  it "throws error when creating an invalid #{note_type} for #{utility_type} with #{word_count} words" do
-    expect { create(:note, content: content, note_type: note_type, utility: utility) }.to raise_error(ActiveRecord::RecordInvalid)
+shared_examples 'an invalid note' do
+  it 'and not passes validation' do
+    note = described_class.new(note_type: note_type, utility: utility)
+    note.validate_content_length
+    expect(note.errors).not_to be_empty
   end
 end
 
-shared_examples 'counts content length' do
-  it "returns length string" do
+shared_examples 'content length' do
+  it "" do
     note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
     expect(note.content_length).to eq(expected)
   end
@@ -62,96 +56,174 @@ describe Note, type: :model do
   end
 
   describe '#content_length' do
-    context 'for North Utility' do 
+    context 'with North Utility' do 
       let(:utility) { build(:north_utility) }
 
-      context 'when short content' do
+      context 'when content is short' do
         let(:word_count) { 5 }
         let(:expected) { 'short' }
 
-        include_examples 'counts content length'
+        it_behaves_like 'content length'
       end
 
-      context 'when medium content' do
+      context 'when content is medium' do
         let(:word_count) { 80 }
         let(:expected) { 'medium' }
 
-        include_examples 'counts content length'
+        it_behaves_like 'content length'
       end
 
-      context 'when long content' do
+      context 'when content is long' do
         let(:word_count) { 120 }
         let(:expected) { 'long' }
 
-        include_examples 'counts content length'
+        it_behaves_like 'content length'
       end
     end
 
-    context 'for South Utility' do 
+    context 'with South Utility' do 
       let(:utility) { build(:south_utility) }
 
-      context 'when short content' do
+      context 'when content is short' do
         let(:word_count) { 5 }
         let(:expected) { 'short' }
 
-        include_examples 'counts content length'
+        it_behaves_like 'content length'
       end
 
-      context 'when medium content' do
+      context 'when content is medium' do
         let(:word_count) { 110 }
         let(:expected) { 'medium' }
 
-        include_examples 'counts content length'
+        it_behaves_like 'content length'
       end
 
-      context 'when long content' do
+      context 'when content is long' do
         let(:word_count) { 150 }
         let(:expected) { 'long' }
 
-        include_examples 'counts content length'
+        it_behaves_like 'content length'
       end
     end
   end
 
   describe '#validate_content_length' do
-    valid_word_counts = {
-      NorthUtility: {
-        review: [50],
-        critique: [50, 100, 101]
-      },
-      SouthUtility: {
-        review: [60],
-        critique: [60, 120, 121]
-      }
-    }
+    context 'when note_type is Review' do
+      let(:note_type) { 'review' }
 
-    invalid_word_counts = {
-      NorthUtility: {
-        review: [51, 101],
-        critique: []
-      },
-      SouthUtility: {
-        review: [61, 121],
-        critique: []
-      }
-    }
+      context 'with North Utility' do
+        let(:utility) { build(:north_utility) }
 
-    %i[NorthUtility SouthUtility].each do |utility_type|
-      context "for #{utility_type}" do
-        %i[review critique].each do |note_type|
-          context "when note_type is #{note_type}" do
-            valid_word_counts[utility_type][note_type].each do |word_count|
-              context "with valid content length" do
-                include_examples 'a valid note', utility_type, note_type, word_count
-              end
-            end
-
-            invalid_word_counts[utility_type][note_type].each do |word_count|
-              context "with invalid content length" do
-                include_examples 'an invalid note', utility_type, note_type, word_count
-              end
-            end
+        context 'when short content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
           end
+          
+          it_behaves_like 'a valid note'
+        end
+
+        context 'when medium content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('medium')
+          end
+
+          it_behaves_like 'an invalid note'
+        end
+
+        context 'when long content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('long')
+          end
+
+          it_behaves_like 'an invalid note'
+        end
+      end
+
+      context 'with South Utility' do
+        let(:utility) { build(:south_utility) }
+
+        context 'when short content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
+          end
+          
+          it_behaves_like 'a valid note'
+        end
+
+        context 'when medium content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('medium')
+          end
+
+          it_behaves_like 'an invalid note'
+        end
+
+        context 'when long content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('long')
+          end
+
+          it_behaves_like 'an invalid note'
+        end
+      end
+    end
+
+    context 'when note_type is Critique' do
+      let(:note_type) { 'critique' }
+
+      context 'with North Utility' do
+        let(:utility) { build(:north_utility) }
+
+        context 'when short content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
+          end
+          
+          it_behaves_like 'a valid note'
+        end
+
+        context 'when medium content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('medium')
+          end
+
+          it_behaves_like 'a valid note'
+        end
+
+        context 'when long content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('long')
+          end
+
+          it_behaves_like 'a valid note'
+        end
+      end
+
+      context 'with South Utility' do
+        let(:utility) { build(:south_utility) }
+
+        context 'when short content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
+          end
+
+          it_behaves_like 'a valid note'
+        end
+
+        context 'when medium content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('medium')
+          end
+
+          it_behaves_like 'a valid note'
+        end
+
+        context 'when long content' do
+          before do
+            allow_any_instance_of(described_class).to receive(:content_length).and_return('long')
+          end
+
+          it_behaves_like 'a valid note'
         end
       end
     end
