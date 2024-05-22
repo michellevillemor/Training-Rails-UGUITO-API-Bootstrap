@@ -16,8 +16,8 @@ shared_examples 'an invalid note' do
   end
 end
 
-shared_examples 'content length' do
-  it "" do
+shared_examples 'content length result' do
+  it 'is expected' do
     note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
     expect(note.content_length).to eq(expected)
   end
@@ -63,21 +63,21 @@ describe Note, type: :model do
         let(:word_count) { 5 }
         let(:expected) { 'short' }
 
-        it_behaves_like 'content length'
+        it_behaves_like 'content length result'
       end
 
       context 'when content is medium' do
         let(:word_count) { 80 }
         let(:expected) { 'medium' }
 
-        it_behaves_like 'content length'
+        it_behaves_like 'content length result'
       end
 
       context 'when content is long' do
         let(:word_count) { 120 }
         let(:expected) { 'long' }
 
-        it_behaves_like 'content length'
+        it_behaves_like 'content length result'
       end
     end
 
@@ -88,21 +88,21 @@ describe Note, type: :model do
         let(:word_count) { 5 }
         let(:expected) { 'short' }
 
-        it_behaves_like 'content length'
+        it_behaves_like 'content length result'
       end
 
       context 'when content is medium' do
         let(:word_count) { 110 }
         let(:expected) { 'medium' }
 
-        it_behaves_like 'content length'
+        it_behaves_like 'content length result'
       end
 
       context 'when content is long' do
         let(:word_count) { 150 }
         let(:expected) { 'long' }
 
-        it_behaves_like 'content length'
+        it_behaves_like 'content length result'
       end
     end
   end
