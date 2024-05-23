@@ -11,10 +11,11 @@
 #  updated_at :datetime         not null
 #
 class Note < ApplicationRecord
-  scope :by_filter, ->(filters) {
+  scope :by_filter, lambda { |filters|
     notes = all
-    notes = notes.where(note_type: filters[:note_type]) unless filters[:note_type].blank?
-    notes = notes.where(title: filters[:title]) unless filters[:title].blank?
+    notes = notes.where(note_type: filters[:note_type]) if filters[:note_type].present?
+    notes = notes.where(title: filters[:title]) if filters[:title].present?
+
     notes = notes.page(filters[:page]).per(filters[:page_size])
 
     notes

@@ -46,27 +46,46 @@ describe Api::V1::NotesController, type: :controller do
 
         it_behaves_like 'successfull request array response'
       end
-      
+
+      context 'when invalid note_type filter' do
+        let(:notes_expected) { critique_notes }
+
+        before { get :index, params: { type: 'invalid_type' } }
+
+        it 'responds with 422 status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
     end
 
     context 'when sorting notes' do
-      context 'by creation order' do
+      context 'with creation order' do
         let(:sorted_notes) { notes.sort_by(&:created_at) }
 
-        context 'asc' do
+        context 'when asc' do
           let(:notes_expected) { sorted_notes }
 
-        before { get :index, params: { order: 'asc' } }
+          before { get :index, params: { order: 'asc' } }
 
-        it_behaves_like 'successfull request array response'
+          it_behaves_like 'successfull request array response'
         end
-  
-        context 'desc' do
+
+        context 'when desc' do
           let(:notes_expected) { sorted_notes.reverse }
 
           before { get :index, params: { order: 'desc' } }
 
           it_behaves_like 'successfull request array response'
+        end
+
+        context 'when invalid sort value' do
+          let(:notes_expected) { sorted_notes }
+
+          before { get :index, params: { order: 'ascendent' } }
+
+          it 'responds with 422 status' do
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
         end
       end
     end

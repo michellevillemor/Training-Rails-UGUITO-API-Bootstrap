@@ -3,6 +3,8 @@ module Api
     class NotesController < ApplicationController
       def index
         render json: notes, status: :ok, each_serializer: NoteSerializer
+      rescue ArgumentError => e
+        render_invalid_argument(e)
       end
 
       def show
@@ -17,13 +19,12 @@ module Api
 
       def notes
         filtered_notes = all_notes.by_filter(filtering_params)
-        sorted_notes = apply_sorting filtered_notes
-        
-        sorted_notes
+        apply_sorting filtered_notes
       end
 
       def apply_sorting(notes)
-        order = %w[asc desc].include?(params[:order]) ? params[:order] : 'asc'
+        # order = %w[asc desc].include?(params[:order]) ? params[:order] : 'asc'
+        order = params[:order]
         notes.order(created_at: order)
       end
 
@@ -35,7 +36,6 @@ module Api
         params.permit(:type, :title, :page, :page_size)
               .transform_keys { |key| key == 'type' ? 'note_type' : key }
       end
-
     end
   end
 end
