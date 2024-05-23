@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :note do
     user
-    title { "Note n°#{Faker::Number.unique}" }
+    title { Faker::TvShows::DrWho.catch_phrase }
     content { Faker::Lorem.sentence(word_count: 5) }
     note_type { %w[review critique].sample }
 
