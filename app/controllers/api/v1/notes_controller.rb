@@ -2,53 +2,40 @@ module Api
   module V1
     class NotesController < ApplicationController
       def index
-        render json: notes_filtered, status: :ok, each_serializer: IndexNoteSerializer
+        render json: notes, status: :ok, each_serializer: NoteSerializer
       end
 
       def show
-        render json: show_note, status: :ok, serializer: ShowNoteSerializer
+        render json: note, status: :ok, serializer: NoteDetailSerializer
       end
 
       private
 
-      def notes
+      def all_notes
         @notes ||= Note.all
       end
 
-      def filter_notes_by_type
-        note_type = filtering_params[:note_type]
-        note_type.present? ? Note.where(note_type: filtering_params[:note_type]) : notes
+      def notes
+        filtered_notes = all_notes.by_filter(filtering_params)
+        sorted_notes = apply_sorting filtered_notes
+        
+        sorted_notes
       end
 
-      def sort_notes_by_order(notes)
-        order = %w[asc desc].include?(sortering_params[:order]) ? sortering_params[:order] : 'asc'
+      def apply_sorting(notes)
+        order = %w[asc desc].include?(params[:order]) ? params[:order] : 'asc'
         notes.order(created_at: order)
       end
 
-      def paginated_notes(notes)
-        page = params[:page]
-        page_size = params[:page_size]
-        notes.page(page).per(page_size)
-      end
-
-      def notes_filtered
-        notes = filter_notes_by_type
-        notes = sort_notes_by_order notes
-        paginated_notes notes
-      end
-
-      def show_note
-        notes.find(params.require(:id))
+      def note
+        Note.find(params.require(:id))
       end
 
       def filtering_params
-        permitted = params.permit(:type)
-        { note_type: permitted[:type] }
+        params.permit(:type, :title, :page, :page_size)
+              .transform_keys { |key| key == 'type' ? 'note_type' : key }
       end
 
-      def sortering_params
-        params.permit(:order)
-      end
     end
   end
 end

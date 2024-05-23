@@ -34,15 +34,4 @@ User.all.find_each do |user|
 end
 
 # Notes
-note_attributes = 30.times.map do |i|
-  {
-    title: "Note n°#{i + 1}",
-    content: Faker::Lorem.sentence(word_count: 10),
-    note_type: ['review', 'critique'].sample,
-    user: [user_north_utility, user_south_utility].sample
-  }
-end
-
-note_attributes.each do |attrs|
-  FactoryBot.create(:note, attrs)
-end
+FactoryBot.create_list(:note, 30)
