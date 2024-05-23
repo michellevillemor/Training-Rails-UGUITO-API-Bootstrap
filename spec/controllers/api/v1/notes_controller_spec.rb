@@ -116,7 +116,7 @@ describe Api::V1::NotesController, type: :controller do
       include_context 'with authenticated user'
 
       context 'when fetching a valid note' do
-        let(:note) { create(:note) }
+        let(:note) { create(:note, user: user) }
         let(:expected) { NoteDetailSerializer.new(note, root: false).to_json }
 
         before { get :show, params: { id: note.id } }
