@@ -1,4 +1,4 @@
-RSpec.shared_examples 'success request response' do
+shared_examples 'successfull request object response' do
   it 'responds with the expected json' do
     expect(response_body.to_json).to eq(expected)
   end
