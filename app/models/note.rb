@@ -13,10 +13,17 @@
 class Note < ApplicationRecord
   scope :by_filter, lambda { |filters|
     notes = all
-    notes = notes.where(note_type: filters[:note_type]) if filters[:note_type].present?
-    notes = notes.where(title: filters[:title]) if filters[:title].present?
+    compacted_filter = filters.compact
+    compacted_filter.each do |filter_field, filter_value|
+      notes = notes.where(filter_field=>filter_value)
+    end
 
-    notes = notes.page(filters[:page]).per(filters[:page_size])
+    notes
+  }
+
+  scope :paginated, lambda { |page, page_size| 
+    notes = all
+    notes = notes.page(page).per(page_size)
 
     notes
   }
