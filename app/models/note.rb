@@ -15,13 +15,13 @@ class Note < ApplicationRecord
     notes = all
     compacted_filter = filters.compact
     compacted_filter.each do |filter_field, filter_value|
-      notes = notes.where(filter_field=>filter_value)
+      notes = notes.where(filter_field => filter_value)
     end
 
     notes
   }
 
-  scope :paginated, lambda { |page, page_size| 
+  scope :paginated, lambda { |page, page_size|
     notes = all
     notes = notes.page(page).per(page_size)
 

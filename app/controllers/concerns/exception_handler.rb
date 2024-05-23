@@ -33,7 +33,7 @@ module ExceptionHandler
     )
   end
 
-  def render_nothing_not_found(error)
+  def render_nothing_not_found(_error)
     render json: {
       error: I18n.t('activerecord.errors.message.record_not_found')
     }, status: :not_found
@@ -53,7 +53,7 @@ module ExceptionHandler
     render_error(:utility_unavailable, status: :internal_server_error)
   end
 
-  def render_invalid_argument(error)
+  def render_invalid_argument(_error)
     render json: {
       error: I18n.t('activerecord.errors.message.invalid_attribute')
     }, status: :unprocessable_entity
