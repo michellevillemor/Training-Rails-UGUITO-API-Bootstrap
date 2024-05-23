@@ -55,7 +55,7 @@ module ExceptionHandler
 
   def render_invalid_argument(_error)
     render json: {
-      error: I18n.t('activerecord.errors.message.invalid_attribute')
+      error: I18n.t('activerecord.errors.messages.invalid_attribute')
     }, status: :unprocessable_entity
   end
 end
