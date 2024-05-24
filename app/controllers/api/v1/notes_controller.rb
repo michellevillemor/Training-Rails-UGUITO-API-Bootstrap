@@ -18,11 +18,8 @@ module Api
       end
 
       def notes
-        filtered_notes = user_notes.by_filter(filtering_params.compact)
-        paginated_notes = filtered_notes.paginated(params[:page], params[:page_size])
-        paginated_notes = apply_sorting paginated_notes if params[:order].present?
-
-        paginated_notes
+        notes = user_notes.by_filter(filtering_params.compact).paginated(paginating_params)
+        ordering_params? ? apply_sorting(notes) : notes
       end
 
       def apply_sorting(notes)
@@ -36,6 +33,14 @@ module Api
       def filtering_params
         params.permit(:type, :title)
               .transform_keys { |key| key == 'type' ? 'note_type' : key }
+      end
+
+      def paginating_params
+        params.permit(:page, :page_size)
+      end
+
+      def ordering_params?
+        params[:order].present?
       end
     end
   end

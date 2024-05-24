@@ -13,7 +13,7 @@
 class Note < ApplicationRecord
   scope :by_filter, ->(filters) { where(filters) }
 
-  scope :paginated, ->(page, page_size) { page(page).per(page_size) }
+  scope :paginated, ->(params) { page(params[:page]).per(params[:page_size]) }
 
   validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_length, unless: -> { user_id.blank? || content.blank? }
