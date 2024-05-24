@@ -16,7 +16,7 @@ module Api
       end
 
       def notes
-        filtered_notes = all_notes.by_filter(filtering_params)
+        filtered_notes = all_notes.by_filter(filtering_params.compact)
         paginated_notes = filtered_notes.paginated(params[:page], params[:page_size])
         paginated_notes = apply_sorting paginated_notes if params[:order].present?
 
