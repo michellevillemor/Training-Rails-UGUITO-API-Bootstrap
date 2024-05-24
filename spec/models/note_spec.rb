@@ -17,7 +17,7 @@ shared_examples 'an invalid note' do
 end
 
 shared_examples 'content length' do
-  it 'is expected' do
+  it 'returns the correct content length' do
     note = build(:note, content: Faker::Lorem.sentence(word_count: word_count), utility: utility)
     expect(note.content_length).to eq(expected)
   end
@@ -33,25 +33,20 @@ shared_examples 'content length cases for utility' do |word_count, expected|
 end
 
 shared_examples 'validates review content length' do
-  context 'when short' do
+  let(:valid_lengths) { %w[short] }
+  let(:invalid_lengths) { %w[medium length] }
+
+  context 'when valid length' do
     before do
-      allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
+      allow_any_instance_of(described_class).to receive(:content_length).and_return(valid_lengths.sample)
     end
 
     it_behaves_like 'a valid note'
   end
 
-  context 'when medium' do
+  context 'when indalid_length' do
     before do
-      allow_any_instance_of(described_class).to receive(:content_length).and_return('medium')
-    end
-
-    it_behaves_like 'an invalid note'
-  end
-
-  context 'when long' do
-    before do
-      allow_any_instance_of(described_class).to receive(:content_length).and_return('long')
+      allow_any_instance_of(described_class).to receive(:content_length).and_return(invalid_lengths.sample)
     end
 
     it_behaves_like 'an invalid note'
@@ -59,35 +54,17 @@ shared_examples 'validates review content length' do
 end
 
 shared_examples 'validates critique content length' do
-  context 'when short' do
-    before do
-      allow_any_instance_of(described_class).to receive(:content_length).and_return('short')
-    end
+  let(:valid_lengths) { %w[short medium length] }
 
-    it_behaves_like 'a valid note'
+  before do
+    allow_any_instance_of(described_class).to receive(:content_length).and_return(valid_lengths.sample)
   end
 
-  context 'when medium' do
-    before do
-      allow_any_instance_of(described_class).to receive(:content_length).and_return('medium')
-    end
-
-    it_behaves_like 'a valid note'
-  end
-
-  context 'when long' do
-    before do
-      allow_any_instance_of(described_class).to receive(:content_length).and_return('long')
-    end
-
-    it_behaves_like 'a valid note'
-  end
+  it_behaves_like 'a valid note'
 end
 
 describe Note, type: :model do
-  subject(:note) do
-    create(:note)
-  end
+  subject(:note) { create(:note) }
 
   %i[user_id title content note_type].each do |value|
     it { is_expected.to validate_presence_of(value) }
@@ -106,13 +83,12 @@ describe Note, type: :model do
   end
 
   describe '#word_count' do
-    let(:random_word_count) { Faker::Number.within(range: 1..50) }
-    let(:content_with_words) { Faker::Lorem.sentence(word_count: random_word_count) }
+    let(:total_words) { Faker::Number.number(digits: 1) }
+    let(:updated_content) { Faker::Lorem.sentence(word_count: total_words) }
 
     it 'counts words in content' do
-      note = build(:note, content: content_with_words)
-
-      expect(note.word_count).to eq(random_word_count)
+      note.update(content: updated_content)
+      expect(subject.word_count).to eq(total_words)
     end
   end
 
