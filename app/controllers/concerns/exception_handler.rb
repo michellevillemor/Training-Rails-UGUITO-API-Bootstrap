@@ -6,6 +6,7 @@ module ExceptionHandler
     rescue_from ActionController::ParameterMissing, with: :render_incorrect_parameter
     rescue_from ActionController::UnpermittedParameters, with: :render_incorrect_parameter
     rescue_from ActiveRecord::RecordNotFound, with: :render_nothing_not_found
+    rescue_from ActiveRecord::StatementInvalid, with: :render_invalid_argument
     rescue_from Exceptions::ClientForbiddenError, with: :render_client_forbidden
     rescue_from Exceptions::ClientUnauthorizedError, with: :render_client_unauthorized
     rescue_from Exceptions::InvalidCurrentClientError do |_exception|
@@ -13,7 +14,7 @@ module ExceptionHandler
     end
     rescue_from Exceptions::UtilityUnavailableError, with: :render_utility_unavailable
     rescue_from Exceptions::InvalidParameterError, with: :render_invalid_parameter
-    rescue_from ArgumentError, with: :handle_invalid_argument
+    rescue_from ::ArgumentError, with: :render_invalid_argument
   end
 
   private
@@ -25,13 +26,18 @@ module ExceptionHandler
   end
 
   def render_incorrect_parameter(error)
-    message = I18n.t('errors.messages.internal_server_error')
+    message = I18n.t('activerecord.errors.messages.internal_server_error')
+
     render_error(
-      :param_is_missing, message: message, meta: error.message, status: :bad_request
+      message: message, meta: error.message, status: :bad_request
     )
   end
 
-  def render_nothing_not_found
+  def render_nothing_not_found(_error)
+    render json: {
+      error: I18n.t('activerecord.errors.message.record_not_found')
+    }, status: :not_found
+
     head :not_found
   end
 
@@ -47,20 +53,9 @@ module ExceptionHandler
     render_error(:utility_unavailable, status: :internal_server_error)
   end
 
-  def handle_invalid_argument(error)
-    attribute = extract_attribute_from_error_message(error.message)
-    resource = controller_name.classify
-
+  def render_invalid_argument(_error)
     render json: {
-      error: I18n.t("activerecord.errors.#{resource.downcase}.invalid_attribute.#{attribute}", attribute: attribute)
+      error: I18n.t('activerecord.errors.messages.invalid_attribute')
     }, status: :unprocessable_entity
-  end
-
-  def extract_attribute_from_error_message(message)
-    if message =~ /not a valid (\w+)/
-      Regexp.last_match(1)
-    else
-      'attribute'
-    end
   end
 end

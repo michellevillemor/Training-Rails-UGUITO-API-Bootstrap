@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe Api::V1::NotesController, type: :controller do
+  let(:expected_keys) { NoteSerializer::EXPECTED_KEYS }
+
   describe 'GET #index' do
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
@@ -10,7 +12,7 @@ describe Api::V1::NotesController, type: :controller do
       let(:user_notes) { review_notes + critique_notes }
 
       let(:expected) do
-        ActiveModel::Serializer::CollectionSerializer.new(notes_expected, serializer: IndexNoteSerializer).to_json
+        ActiveModel::Serializer::CollectionSerializer.new(notes_expected, serializer: NoteSerializer).as_json
       end
 
       context 'when fetching all the notes for user' do
@@ -18,7 +20,7 @@ describe Api::V1::NotesController, type: :controller do
 
         before { get :index }
 
-        it_behaves_like 'success request response'
+        it_behaves_like 'successfull request array response'
       end
 
       context 'when fetching notes with page and page size params' do
@@ -28,29 +30,66 @@ describe Api::V1::NotesController, type: :controller do
 
         before { get :index, params: { page: page, page_size: page_size } }
 
-        it_behaves_like 'success request response'
+        it_behaves_like 'successfull request array response'
       end
 
       context 'when fetching notes using note_type filter' do
-        %w[review critique].each do |note_type|
-          let(:notes_expected) { note_type == 'review' ? review_notes : critique_notes }
+        context 'when Review' do
+          let(:notes_expected) { review_notes }
 
-          before { get :index, params: { type: note_type } }
+          before { get :index, params: { type: 'review' } }
 
-          it_behaves_like 'success request response'
+          it_behaves_like 'successfull request array response'
+        end
+
+        context 'when Critique' do
+          let(:notes_expected) { critique_notes }
+
+          before { get :index, params: { type: 'critique' } }
+
+          it_behaves_like 'successfull request array response'
+        end
+
+        context 'when invalid note_type filter' do
+          let(:notes_expected) { critique_notes }
+
+          before { get :index, params: { type: 'invalid_type' } }
+
+          it 'responds with 422 status' do
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
         end
       end
 
-      context 'when sorting notes by creation order' do
-        %w[asc desc].each do |direction|
-          let(:notes_expected) do
-            sorted_notes = user_notes.sort_by(&:created_at)
-            direction == 'asc' ? sorted_notes : sorted_notes.reverse
+      context 'when sorting notes' do
+        context 'with creation order' do
+          let(:sorted_notes) { user_notes.sort_by(&:created_at) }
+
+          context 'when asc' do
+            let(:notes_expected) { sorted_notes }
+
+            before { get :index, params: { order: 'asc' } }
+
+            it_behaves_like 'successfull request array response'
           end
 
-          before { get :index, params: { order: direction } }
+          context 'when desc' do
+            let(:notes_expected) { sorted_notes.reverse }
 
-          it_behaves_like 'success request response'
+            before { get :index, params: { order: 'desc' } }
+
+            it_behaves_like 'successfull request array response'
+          end
+
+          context 'when invalid sort value' do
+            let(:notes_expected) { sorted_notes }
+
+            before { get :index, params: { order: 'ascendent' } }
+
+            it 'responds with 422 status' do
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
         end
       end
 
@@ -59,7 +98,7 @@ describe Api::V1::NotesController, type: :controller do
 
         before { get :index, params: { order: 'desc', type: 'review' } }
 
-        it_behaves_like 'success request response'
+        it_behaves_like 'successfull request array response'
       end
     end
 
@@ -76,17 +115,16 @@ describe Api::V1::NotesController, type: :controller do
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
 
-      let(:expected) { ShowNoteSerializer.new(note, root: false).to_json }
-
       context 'when fetching a valid note' do
         let(:note) { create(:note, user: user) }
+        let(:expected) { NoteDetailSerializer.new(note, root: false).to_json }
 
         before { get :show, params: { id: note.id } }
 
-        it_behaves_like 'success request response'
+        it_behaves_like 'successfull request object response'
       end
 
-      context 'when fetching a invalid note' do
+      context 'when fetching an invalid note' do
         before { get :show, params: { id: Faker::Number.number } }
 
         it 'responds with 404 status' do

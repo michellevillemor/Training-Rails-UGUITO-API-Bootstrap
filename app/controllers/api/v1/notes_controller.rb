@@ -4,11 +4,11 @@ module Api
       before_action :authenticate_user!
 
       def index
-        render json: notes_filtered, status: :ok, each_serializer: IndexNoteSerializer
+        render json: notes, status: :ok, each_serializer: NoteSerializer
       end
 
       def show
-        render json: show_note, status: :ok, serializer: ShowNoteSerializer
+        render json: note, status: :ok, serializer: NoteDetailSerializer
       end
 
       def create
@@ -25,43 +25,29 @@ module Api
 
       private
 
-      def notes
+      def user_notes
         current_user.notes
       end
 
-      def filter_notes_by_type
-        note_type = filtering_params[:note_type]
-        note_type.present? ? Note.where(note_type: filtering_params[:note_type]) : notes
+      def notes
+        filtered_notes = user_notes.by_filter(filtering_params)
+        paginated_notes = filtered_notes.paginated(params[:page], params[:page_size])
+        paginated_notes = apply_sorting paginated_notes if params[:order].present?
+
+        paginated_notes
       end
 
-      def sort_notes_by_order(notes)
-        order = %w[asc desc].include?(sortering_params[:order]) ? sortering_params[:order] : 'asc'
-        notes.order(created_at: order)
+      def apply_sorting(notes)
+        notes.order(created_at: params[:order])
       end
 
-      def paginated_notes(notes)
-        page = params[:page]
-        page_size = params[:page_size]
-        notes.page(page).per(page_size)
-      end
-
-      def notes_filtered
-        notes = filter_notes_by_type
-        notes = sort_notes_by_order notes
-        paginated_notes notes
-      end
-      
-      def show_note
-        notes.find(params.require(:id))
+      def note
+        user_notes.find(params.require(:id))
       end
 
       def filtering_params
-        permitted = params.permit(:type)
-        { note_type: permitted[:type] }
-      end
-
-      def sortering_params
-        params.permit(:order)
+        params.permit(:type, :title)
+              .transform_keys { |key| key == 'type' ? 'note_type' : key }
       end
 
       def creating_params

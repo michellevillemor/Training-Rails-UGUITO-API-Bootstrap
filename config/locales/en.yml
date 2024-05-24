@@ -40,7 +40,9 @@ en:
         note_type: "The note type"
     errors:
       messages:
-        internal_server_error: "Required parameters missing"
+        internal_server_error: "Required parameter is missing"
+        record_not_found: "Record not found"
+        invalid_attribute: "Invalid parameter"
       note:
         invalid_attribute:
           content_length: "A %{note_type} cant be over %{word_count} words"
