@@ -127,9 +127,9 @@ describe Api::V1::NotesController, type: :controller do
       context 'when fetching an invalid note' do
         before { get :show, params: { id: Faker::Number.number } }
 
-          it 'responds with 404 status' do
-            expect(response).to have_http_status(:not_found)
-          end
+        it 'responds with 404 status' do
+          expect(response).to have_http_status(:not_found)
+        end
       end
     end
 
