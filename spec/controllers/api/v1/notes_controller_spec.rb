@@ -165,24 +165,47 @@ describe Api::V1::NotesController, type: :controller do
         it_behaves_like 'success post request with message'
       end
 
-      context 'when required parameters are missing' do
-        let(:missing_attributes) do
+      context 'when required parameters are empty or null' do
+        let(:model) { 'note' }
+        let(:params) do
           {
-            note: {
+            model => {
               title: nil,
-              note_type: 'review',
               content: ''
             }
           }
         end
 
-        before { post :create, params: missing_attributes }
+        before { post :create, params: params }
+
+        let(:missing_attributes) {
+          [:title, :content]
+        }
+
+        it_behaves_like 'bad request when a parameter is missing'
+      end
+
+      context 'when required parameters are missing' do
+        let(:model) { 'note' }
+        let(:params) do
+          {
+            model => {
+              content: 'esto es un contenido'
+            }
+          }
+        end
+
+        before { post :create, params: params }
+
+        let(:missing_attributes) {
+          [:title]
+        }
 
         it_behaves_like 'bad request when a parameter is missing'
       end
 
       context 'when the note type is invalid' do
-        let(:invalid_type_attributes) do
+        let(:params) do
           {
             note: {
               title: Faker::Lorem.word,
@@ -192,9 +215,9 @@ describe Api::V1::NotesController, type: :controller do
           }
         end
 
-        before { post :create, params: invalid_type_attributes }
+        before { post :create, params: params }
         
-        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.note_type') }
+        let(:expected_message) { I18n.t('errors.messages.invalid_attribute.note_type') }
 
         it_behaves_like 'unprocessable entity with message'
       end
@@ -202,7 +225,7 @@ describe Api::V1::NotesController, type: :controller do
       context 'when the note content length exceeds the limit for reviews' do
         utility = Utility.new(type: ['NorthUtility', 'SouthUtility'].sample )
 
-        let(:long_content_attributes) do
+        let(:params) do
           {
             note: {
               title: 'Reseña',
@@ -213,7 +236,7 @@ describe Api::V1::NotesController, type: :controller do
           }
         end
 
-        before { post :create, params: long_content_attributes }
+        before { post :create, params: params }
 
         let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length })}
 

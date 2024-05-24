@@ -46,6 +46,12 @@ es:
       note:
         invalid_attribute:
           content_length: "Una %{note_type} no puede superar las %{threshold} palabras"
-          note_type: "El tipo de nota no es válido"
+          title: "El título no es válido"
+          content: "El contenido no es válido"
     success:
       create: "%{resource} creada con éxito."
+  errors:
+    messages:
+      invalid_attribute: 
+        attribute: "El parametro es invalido"
+        note_type: "El tipo de nota no es válido"

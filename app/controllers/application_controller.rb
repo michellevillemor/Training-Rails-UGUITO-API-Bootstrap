@@ -28,13 +28,13 @@ class ApplicationController < ActionController::Base
     render json: {
       errors: [
         {
-          status: '422',
-          title: 'Unprocessable Entity',
-          detail: resource.errors.messages.values.flatten.first,
+          status: '400',
+          title: 'Bad Request',
+          detail: resource.errors,
           code: '100'
         }
       ]
-    }, status: :unprocessable_entity
+    }, status: :bad_request
   end
 
   def render_resource(resource)
@@ -55,10 +55,5 @@ class ApplicationController < ActionController::Base
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name document_number])
-  end
-
-  def missing_parameters_error
-    error_message = I18n.t('activerecord.errors.messages.internal_server_error')
-    render json: { error: error_message }, status: :bad_request
   end
 end

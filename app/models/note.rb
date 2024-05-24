@@ -40,9 +40,8 @@ class Note < ApplicationRecord
     return unless content_length != 'short' && note_type == 'review'
 
     error_message = I18n.t('activerecord.errors.note.invalid_attribute.content_length',
-                           { note_type: note_type, threshold: utility.content_short_length,
-                             utility_name: utility.name })
-    errors.add(I18n.t('activerecord.attributes.note.content'), error_message)
+                           { note_type: note_type, threshold: utility.content_short_length })
+    errors.add(I18n.t('activerecord.attributes.note.content_length'), error_message)
   end
 
   def word_count

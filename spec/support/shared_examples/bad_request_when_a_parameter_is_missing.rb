@@ -4,6 +4,11 @@ shared_examples 'bad request when a parameter is missing' do
   end
 
   it 'returns an error message' do
-    expect(response_body['error']).to eq I18n.t('activerecord.errors.messages.internal_server_error')
+    expected_errors = response_body['errors'].map { |error| error['detail'] }
+
+    missing_attributes.each do |attribute, value|
+      expected_message = I18n.t("activerecord.errors.#{model}.invalid_attribute.#{attribute}")
+      expect(expected_errors).to include(expected_message)
+    end
   end
 end

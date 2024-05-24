@@ -13,14 +13,8 @@ module Api
 
       def create
         note = current_user.notes.new creating_params
-
-        if note.save
-          resource_created note
-        else
-          handle_note_errors note
-        end
-      rescue ArgumentError => e
-        handle_invalid_argument(e)
+        note.save!
+        render_resource(note)
       end
 
       private
@@ -52,14 +46,6 @@ module Api
 
       def creating_params
         params.require(:note).permit(:title, :note_type, :content)
-      end
-
-      def handle_note_errors(note)
-        if note.errors.details[:title].any? { |e| e[:error] == :blank }
-          missing_parameters_error
-        else
-          validation_error(note)
-        end
       end
     end
   end
