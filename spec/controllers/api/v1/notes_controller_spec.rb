@@ -100,6 +100,17 @@ describe Api::V1::NotesController, type: :controller do
 
         it_behaves_like 'successfull request array response'
       end
+
+      context 'when there are no notes to fetch' do
+        let(:notes_expected) { [] }
+
+        before do
+          Note.delete_all
+          get :index
+        end
+
+        it_behaves_like 'successfull request array response'
+      end
     end
 
     context 'when there is not a user logged in' do
@@ -108,17 +119,6 @@ describe Api::V1::NotesController, type: :controller do
 
         it_behaves_like 'unauthorized'
       end
-    end
-
-    context 'when there are no notes to fetch' do
-      let(:notes_expected) { [] }
-
-      before do
-        Note.delete_all
-        get :index
-      end
-
-      it_behaves_like 'successfull request array response'
     end
   end
 
