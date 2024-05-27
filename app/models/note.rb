@@ -11,22 +11,9 @@
 #  updated_at :datetime         not null
 #
 class Note < ApplicationRecord
-  scope :by_filter, lambda { |filters|
-    notes = all
-    compacted_filter = filters.compact
-    compacted_filter.each do |filter_field, filter_value|
-      notes = notes.where(filter_field => filter_value)
-    end
+  scope :by_filter, ->(filters) { where(filters) }
 
-    notes
-  }
-
-  scope :paginated, lambda { |page, page_size|
-    notes = all
-    notes = notes.page(page).per(page_size)
-
-    notes
-  }
+  scope :paginated, ->(params) { page(params[:page]).per(params[:page_size]) }
 
   validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_length, unless: -> { user_id.blank? || content.blank? }

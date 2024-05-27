@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Api::V1::NotesController, type: :controller do
-  let(:expected_keys) { NoteSerializer::EXPECTED_KEYS }
+  let(:expected_keys) { %w[id title note_type content_length].freeze }
 
   describe 'GET #index' do
     context 'when there is a user logged in' do
@@ -97,6 +97,17 @@ describe Api::V1::NotesController, type: :controller do
         let(:notes_expected) { review_notes.sort_by(&:created_at).reverse }
 
         before { get :index, params: { order: 'desc', type: 'review' } }
+
+        it_behaves_like 'successfull request array response'
+      end
+
+      context 'when there are no notes to fetch' do
+        let(:notes_expected) { [] }
+
+        before do
+          Note.delete_all
+          get :index
+        end
 
         it_behaves_like 'successfull request array response'
       end
