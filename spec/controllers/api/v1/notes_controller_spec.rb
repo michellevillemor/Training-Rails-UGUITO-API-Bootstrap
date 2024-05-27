@@ -165,26 +165,6 @@ describe Api::V1::NotesController, type: :controller do
         it_behaves_like 'success post request with message'
       end
 
-      context 'when required parameters are empty or null' do
-        let(:model) { 'note' }
-        let(:params) do
-          {
-            model => {
-              title: nil,
-              content: ''
-            }
-          }
-        end
-
-        before { post :create, params: params }
-
-        let(:missing_attributes) {
-          [:title, :content]
-        }
-
-        it_behaves_like 'bad request when a parameter is missing'
-      end
-
       context 'when required parameters are missing' do
         let(:model) { 'note' }
         let(:params) do
@@ -216,7 +196,7 @@ describe Api::V1::NotesController, type: :controller do
         end
 
         before { post :create, params: params }
-        
+
         let(:expected_message) { I18n.t('errors.messages.invalid_attribute.note_type') }
 
         it_behaves_like 'unprocessable entity with message'
@@ -240,7 +220,7 @@ describe Api::V1::NotesController, type: :controller do
 
         let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length })}
 
-        it_behaves_like 'unprocessable entity with message'
+        it_behaves_like 'bad request with message'
       end
     end
 

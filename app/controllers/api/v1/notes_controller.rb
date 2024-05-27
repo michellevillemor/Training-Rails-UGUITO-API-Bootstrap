@@ -15,6 +15,8 @@ module Api
         note = current_user.notes.new creating_params
         note.save!
         render_resource(note)
+      rescue ActiveRecord::RecordInvalid => e
+        handle_record_invalid(e)
       end
 
       private
@@ -46,6 +48,14 @@ module Api
 
       def creating_params
         params.require(:note).permit(:title, :note_type, :content)
+      end
+
+      def handle_record_invalid(error)
+        if error.record.is_a?(Note) && error.record.note_type.present? && error.record.utility.present?
+          render_missing_parameter(error, { note_type: error.record.note_type, threshold: error.record.utility.content_short_length })
+        else
+          render_missing_parameter(error)
+        end
       end
     end
   end

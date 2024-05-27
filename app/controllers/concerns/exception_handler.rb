@@ -5,7 +5,15 @@ module ExceptionHandler
   included do
     rescue_from ActionController::ParameterMissing, with: :render_incorrect_parameter
     rescue_from ActionController::UnpermittedParameters, with: :render_incorrect_parameter
-    rescue_from ActiveRecord::RecordInvalid, with: :render_validation_error
+    rescue_from ActiveRecord::RecordInvalid do |error|
+      controller_name = error.record.class.name.pluralize + 'Controller'
+      if Object.const_defined?(controller_name)
+        controller = Object.const_get(controller_name).new
+        controller.handle_record_invalid(error)
+      else
+        render_missing_parameter(error)
+      end
+    end
     rescue_from ActiveRecord::RecordNotFound, with: :render_nothing_not_found
     rescue_from ActiveRecord::StatementInvalid, with: :render_invalid_argument
     rescue_from Exceptions::ClientForbiddenError, with: :render_client_forbidden
@@ -76,19 +84,22 @@ module ExceptionHandler
     end  
   end
 
-  def render_validation_error(error)
+  def render_missing_parameter(error, translation_params = {})
     error_details = error.record.errors.details.map do |attribute, details|
 
       details.map do |detail|
+        translation_key = "activerecord.errors.#{error.record.model_name.singular}.invalid_attribute.#{attribute}"
+        translation = I18n.t(translation_key, **translation_params)
+
         {
           status: '400',
           title: 'Bad Request',
-          detail: I18n.t("activerecord.errors.#{error.record.model_name.singular}.invalid_attribute.#{attribute}"),
+          detail: translation,
           code: '100'
         }
       end
     end.flatten
   
     render json: { errors: error_details }, status: :bad_request
-  end
+  end  
 end

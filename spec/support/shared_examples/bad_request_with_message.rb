@@ -4,7 +4,7 @@ shared_examples 'bad request with message' do
   end
 
   it 'returns the appropiate error message' do
-    expect(response_body['errors'].first['message'])
+    expect(response_body['errors'].first['detail'])
       .to eq(message)
   end
 end
