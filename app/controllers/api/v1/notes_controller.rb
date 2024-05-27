@@ -51,8 +51,13 @@ module Api
       end
 
       def handle_record_invalid(error)
-        if error.record.is_a?(Note) && error.record.note_type.present? && error.record.utility.present?
-          render_missing_parameter(error, { note_type: error.record.note_type, threshold: error.record.utility.content_short_length })
+        note_type_present = error.record.note_type.present?
+        utility_present = error.record.utility.present?
+
+        if note_type_present && utility_present
+          render_missing_parameter(error,
+                                   { note_type: error.record.note_type,
+                                     threshold: error.record.utility.content_short_length })
         else
           render_missing_parameter(error)
         end

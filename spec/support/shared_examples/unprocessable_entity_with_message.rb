@@ -5,9 +5,7 @@ shared_examples 'unprocessable entity with message' do
 
   it 'returns the appropiate error message' do
     errors = response_body['errors'].map { |error| error['detail'] }
-    
-    errors.each do |err|
-      expect(err).to include(expected_message)
-    end
+
+    expect(errors).to all(include(expected_message))
   end
 end

@@ -157,16 +157,18 @@ describe Api::V1::NotesController, type: :controller do
       include_context 'with authenticated user'
 
       context 'when the note is created successfully' do
-
         before { post :create, params: valid_attributes }
 
-        let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note')}) }
+        let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note') }) }
 
         it_behaves_like 'success post request with message'
       end
 
       context 'when required parameters are missing' do
         let(:model) { 'note' }
+        let(:missing_attributes) do
+          [:title]
+        end
         let(:params) do
           {
             model => {
@@ -176,10 +178,6 @@ describe Api::V1::NotesController, type: :controller do
         end
 
         before { post :create, params: params }
-
-        let(:missing_attributes) {
-          [:title]
-        }
 
         it_behaves_like 'bad request when a parameter is missing'
       end
@@ -194,16 +192,15 @@ describe Api::V1::NotesController, type: :controller do
             }
           }
         end
+        let(:expected_message) { I18n.t('errors.messages.invalid_attribute.note_type') }
 
         before { post :create, params: params }
-
-        let(:expected_message) { I18n.t('errors.messages.invalid_attribute.note_type') }
 
         it_behaves_like 'unprocessable entity with message'
       end
 
       context 'when the note content length exceeds the limit for reviews' do
-        utility = Utility.new(type: ['NorthUtility', 'SouthUtility'].sample )
+        utility = Utility.new(type: %w[NorthUtility SouthUtility].sample)
 
         let(:params) do
           {
@@ -215,10 +212,9 @@ describe Api::V1::NotesController, type: :controller do
             }
           }
         end
+        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length }) }
 
         before { post :create, params: params }
-
-        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length })}
 
         it_behaves_like 'bad request with message'
       end
