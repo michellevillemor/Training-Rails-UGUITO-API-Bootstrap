@@ -33,7 +33,7 @@ module ExceptionHandler
     )
   end
 
-  def render_nothing_not_found()
+  def render_nothing_not_found
     render json: {
       error: I18n.t('activerecord.errors.messages.record_not_found')
     }, status: :not_found

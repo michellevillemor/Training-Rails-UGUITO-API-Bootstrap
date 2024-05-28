@@ -94,10 +94,7 @@ describe Api::V1::NotesController, type: :controller do
     context 'when there are no notes to fetch' do
       let(:expected) { [] }
 
-      before do
-        Note.delete_all
-        get :index
-      end
+      before { get :index }
 
       it_behaves_like 'successfull request array response'
     end
