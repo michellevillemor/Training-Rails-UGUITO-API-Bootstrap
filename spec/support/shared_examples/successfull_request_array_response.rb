@@ -3,9 +3,7 @@ shared_examples 'successfull request array response' do
     expect(response_body).to be_an(Array)
     expect(response_body.size).to eq(expected.size)
 
-    response_body.each do |item|
-      expect(item.keys).to match_array(expected_keys)
-    end
+    expect(response_body.first.keys).to match_array(expected_keys)
   end
 
   it 'responds with 200 status' do

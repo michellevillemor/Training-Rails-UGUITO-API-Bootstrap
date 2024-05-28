@@ -11,17 +11,8 @@ module Api
 
       private
 
-      def all_notes
-        @notes ||= Note.all
-      end
-
       def notes
-        notes = all_notes.by_filter(filtering_params.compact).paginated(paginating_params)
-        ordering_params? ? apply_sorting(notes) : notes
-      end
-
-      def apply_sorting(notes)
-        notes.order(created_at: params[:order])
+        notes = Note.by_filter(filtering_params).paginated(paginating_params).with_order(ordering_params)
       end
 
       def note
@@ -29,16 +20,15 @@ module Api
       end
 
       def filtering_params
-        params.permit(:type, :title)
-              .transform_keys { |key| key == 'type' ? 'note_type' : key }
+        params.permit(:type, :title).compact
       end
 
       def paginating_params
-        params.permit(:page, :page_size)
+        params.permit(:page, :page_size).compact
       end
 
-      def ordering_params?
-        params[:order].present?
+      def ordering_params
+        params.permit[:order].compact
       end
     end
   end
