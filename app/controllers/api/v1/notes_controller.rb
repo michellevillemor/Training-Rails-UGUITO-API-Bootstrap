@@ -4,7 +4,17 @@ module Api
       before_action :authenticate_user!
 
       def index
-        render json: notes, status: :ok, each_serializer: NoteSerializer
+        begin
+          render json: notes, status: :ok, each_serializer: NoteSerializer
+        rescue ActiveRecord::StatementInvalid
+          render json: {
+            error: I18n.t('activerecord.errors.messages.invalid_attribute')
+          }, status: :unprocessable_entity
+        rescue ArgumentError => e
+          render json: {
+            error: I18n.t('activerecord.errors.messages.invalid_attribute')
+          }, status: :unprocessable_entity
+        end
       end
 
       def show
@@ -18,12 +28,7 @@ module Api
       end
 
       def notes
-        notes = user_notes.by_filter(filtering_params.compact).paginated(paginating_params)
-        ordering_params? ? apply_sorting(notes) : notes
-      end
-
-      def apply_sorting(notes)
-        notes.order(created_at: params[:order])
+        user_notes.by_filter(filtering_params).paginated(paginating_params[:page], paginating_params[:page_size]).with_order(ordering_params)
       end
 
       def note
@@ -31,16 +36,15 @@ module Api
       end
 
       def filtering_params
-        params.permit(:type, :title)
-              .transform_keys { |key| key == 'type' ? 'note_type' : key }
+        params.permit(:note_type, :title).compact
       end
 
       def paginating_params
-        params.permit(:page, :page_size)
+        params.permit(:page, :page_size).compact
       end
 
-      def ordering_params?
-        params[:order].present?
+      def ordering_params
+        params.permit[:order] || 'asc'
       end
     end
   end
