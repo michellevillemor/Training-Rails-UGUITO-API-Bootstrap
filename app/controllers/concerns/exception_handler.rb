@@ -6,13 +6,7 @@ module ExceptionHandler
     rescue_from ActionController::ParameterMissing, with: :render_incorrect_parameter
     rescue_from ActionController::UnpermittedParameters, with: :render_incorrect_parameter
     rescue_from ActiveRecord::RecordInvalid do |error|
-      controller_name = "#{error.record.class.name.pluralize}Controller"
-      if Object.const_defined?(controller_name)
-        controller = Object.const_get(controller_name).new
-        controller.handle_record_invalid(error)
-      else
         render_missing_parameter(error)
-      end
     end
     rescue_from ActiveRecord::RecordNotFound, with: :render_nothing_not_found
     rescue_from ActiveRecord::StatementInvalid, with: :render_invalid_argument
