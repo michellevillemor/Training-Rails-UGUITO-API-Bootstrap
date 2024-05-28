@@ -11,8 +11,8 @@
 #  updated_at :datetime         not null
 #
 class Note < ApplicationRecord
-  validates :title, :content, :user, presence: true
-  validate :validate_content_length
+  validates :user_id, :title, :content, :note_type, presence: true
+  validate :validate_content_length, unless: -> { user_id.blank? || content.blank? }
 
   enum note_type: { 'review' => 0, 'critique' => 1 }
 
