@@ -2,7 +2,17 @@ module Api
   module V1
     class NotesController < ApplicationController
       def index
-        render json: notes, status: :ok, each_serializer: NoteSerializer
+        begin
+          render json: notes, status: :ok, each_serializer: NoteSerializer
+        rescue ActiveRecord::StatementInvalid
+          render json: {
+            error: I18n.t('activerecord.errors.messages.invalid_attribute')
+          }, status: :unprocessable_entity
+        rescue ArgumentError => e
+          render json: {
+            error: I18n.t('activerecord.errors.messages.invalid_attribute')
+          }, status: :unprocessable_entity
+        end
       end
 
       def show
@@ -12,7 +22,7 @@ module Api
       private
 
       def notes
-        notes = Note.by_filter(filtering_params).paginated(paginating_params).with_order(ordering_params)
+        Note.by_filter(filtering_params).paginated(paginating_params[:page], paginating_params[:page_size]).with_order(ordering_params)
       end
 
       def note
@@ -20,7 +30,7 @@ module Api
       end
 
       def filtering_params
-        params.permit(:type, :title).compact
+        params.permit(:note_type, :title).compact
       end
 
       def paginating_params
@@ -28,7 +38,7 @@ module Api
       end
 
       def ordering_params
-        params.permit[:order].compact
+        params.permit[:order] || 'asc'
       end
     end
   end
