@@ -19,6 +19,11 @@ module Api
         handle_record_invalid(e)
       end
 
+      def index_async
+        response = execute_async(RetrieveNotesWorker, current_user.id, index_async_params)
+        async_custom_response(response)
+      end
+
       private
 
       def user_notes
@@ -66,6 +71,10 @@ module Api
         else
           render_missing_parameter(error)
         end
+      end
+
+      def index_async_params
+        { author: params.require(:author) }
       end
     end
   end
