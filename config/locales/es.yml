@@ -49,6 +49,7 @@ es:
           content_length: "Una %{note_type} no puede superar las %{threshold} palabras"
           title: "El título no es válido"
           content: "El contenido no es válido"
+          note_type: "El tipo de nota no es válido"
     success:
       create: "%{resource} creada con éxito."
   errors:

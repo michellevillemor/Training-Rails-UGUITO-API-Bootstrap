@@ -4,6 +4,7 @@ shared_examples 'unprocessable entity with message' do
   end
 
   it 'returns the appropiate error message' do
+    binding.pry
     errors = response_body['errors'].map { |error| error['detail'] }
 
     expect(errors).to all(include(expected_message))
