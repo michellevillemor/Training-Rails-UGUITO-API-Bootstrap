@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 describe Api::V1::NotesController, type: :controller do
-
   describe 'GET #index' do
     context 'when there are notes to fetch' do
       let(:expected_keys) { %w[id title note_type content_length].freeze }
@@ -14,11 +13,11 @@ describe Api::V1::NotesController, type: :controller do
         ActiveModel::Serializer::CollectionSerializer.new(notes_expected, serializer: NoteSerializer).as_json
       end
 
-      before { get :index, params: params}
+      before { get :index, params: params }
 
       context 'when fetching all the notes' do
         let(:notes_expected) { notes }
-        let(:params) {{}}
+        let(:params) { {} }
 
         it_behaves_like 'successfull request array response'
       end
@@ -27,7 +26,7 @@ describe Api::V1::NotesController, type: :controller do
         let(:page)            { 1 }
         let(:page_size)       { 2 }
         let(:notes_expected) { notes.first(2) }
-        let(:params) { {page: page, page_size: page_size} }
+        let(:params) { { page: page, page_size: page_size } }
 
         it_behaves_like 'successfull request array response'
       end
@@ -35,23 +34,24 @@ describe Api::V1::NotesController, type: :controller do
       context 'when fetching notes using note_type filter' do
         context 'when Review' do
           let(:notes_expected) { review_notes }
-          let(:params) {{ note_type: 'review'} }
+          let(:params) { { note_type: 'review' } }
 
           it_behaves_like 'successfull request array response'
         end
 
         context 'when Critique' do
           let(:notes_expected) { critique_notes }
-          let(:params) { {note_type: 'critique'} }
+          let(:params) { { note_type: 'critique' } }
 
           it_behaves_like 'successfull request array response'
         end
 
         context 'when invalid note_type filter' do
           let(:notes_expected) { critique_notes }
-          let(:params) { {note_type: 'invalid_type'} }
+          let(:params) { { note_type: 'invalid_type' } }
 
           let(:message) { I18n.t('activerecord.errors.messages.invalid_attribute') }
+
           it_behaves_like 'unprocessable entity with message'
         end
       end
@@ -62,21 +62,21 @@ describe Api::V1::NotesController, type: :controller do
 
           context 'when asc' do
             let(:notes_expected) { sorted_notes }
-            let(:params) { {order: 'asc'} }
+            let(:params) { { order: 'asc' } }
 
             it_behaves_like 'successfull request array response'
           end
 
           context 'when desc' do
             let(:notes_expected) { sorted_notes.reverse }
-            let(:params) { {order: 'desc'} }
+            let(:params) { { order: 'desc' } }
 
             it_behaves_like 'successfull request array response'
           end
 
           context 'when invalid sort value' do
             let(:notes_expected) { sorted_notes }
-            let(:params) { {order: 'ascendent'} }
+            let(:params) { { order: 'ascendent' } }
 
             it_behaves_like 'successfull request array response'
           end
@@ -85,7 +85,7 @@ describe Api::V1::NotesController, type: :controller do
 
       context 'when fetching notes using creation order and type filter' do
         let(:notes_expected) { review_notes.sort_by(&:created_at).reverse }
-        let(:params) { {note_type: 'review', order: 'desc'} }
+        let(:params) { { note_type: 'review', order: 'desc' } }
 
         it_behaves_like 'successfull request array response'
       end
@@ -101,20 +101,20 @@ describe Api::V1::NotesController, type: :controller do
   end
 
   describe ' GET #show' do
-    before { get :show, params: params}
+    before { get :show, params: params }
 
     context 'when fetching a valid note' do
       let(:note) { create(:note) }
       let(:expected) { NoteDetailSerializer.new(note, root: false).to_json }
-      let(:params) { {id: note.id} }
+      let(:params) { { id: note.id } }
 
       it_behaves_like 'successfull request object response'
     end
 
     context 'when fetching an invalid note' do
-      let(:params) { {id: Faker::Number.number} }
+      let(:params) { { id: Faker::Number.number } }
 
-      let(:message) {I18n.t('activerecord.errors.messages.record_not_found')}
+      let(:message) { I18n.t('activerecord.errors.messages.record_not_found') }
 
       it_behaves_like 'resource not found'
     end
