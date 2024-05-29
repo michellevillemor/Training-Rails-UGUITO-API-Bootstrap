@@ -56,6 +56,10 @@ module Api
         params.require(:note).permit(:title, :note_type, :content)
       end
 
+      def index_async_params
+        { author: params.require(:author) }
+      end
+
       def handle_invalid_parameters(e)
         render_invalid_parameters(e)
       end
@@ -80,10 +84,6 @@ module Api
         end
 
         invalid_fields
-      end
-
-      def index_async_params
-        { author: params.require(:author) }
       end
     end
   end

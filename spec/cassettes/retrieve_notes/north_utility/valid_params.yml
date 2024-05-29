@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://private-bfc6a-widergytrainingnorthutilityapi.apiary-mock.com/notes?autor=Rodrigo%20Lugo%20Melgar
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Content-Type:
+      - text/html; charset=utf-8
+      Content-Length:
+      - '607'
+      X-Apiary-Ratelimit-Limit:
+      - '120'
+      X-Apiary-Ratelimit-Remaining:
+      - '119'
+      Etag:
+      - W/"25f-G8N1up/dwMbXNsUb+cZwGK3A6tQ"
+      X-Request-Id:
+      - f4102783e27d0880a76270b527999694
+      Date:
+      - Wed, 29 May 2024 21:52:34 GMT
+      Connection:
+      - keep-alive
+      Akamai-Grn:
+      - 0.c7f71202.1717019553.5d27dafc
+    body:
+      encoding: UTF-8
+      string: |
+        <!doctype html>
+        <html lang="en">
+        <meta charset="utf-8">
+        <title>apiary.io—404—No Resource Found!</title>
+        <body>
+        <div id="bg"></div>
+         <div id="message">
+          <h1>The resource you're looking for doesn't exist. <br>Please check the <a href="https://widergytrainingnorthutilityapi.docs.apiary.io/">API documentation</a> or have a look on available resources below.</h1>
+          <p></p>
+              <ol>
+                      <section><h2></h2>
+                              <li><b>GET</b> /libros{?autor}</li>
+                              <li><b>GET</b> /notas{?autor}</li>
+                          </section>
+                  </ol>
+            </div>
+        </body>
+        </html>
+  recorded_at: Wed, 29 May 2024 21:52:34 GMT
+recorded_with: VCR 6.2.0

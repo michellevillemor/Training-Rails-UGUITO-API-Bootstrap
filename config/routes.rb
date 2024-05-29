@@ -22,6 +22,9 @@ Rails.application.routes.draw do
       get :current
     end
     resources :notes, only: %i[index show create] do
+      collection do
+        get :async, to: 'notes#index_async'
+      end
     end
   end
 
@@ -111,6 +114,7 @@ end
 #                                    PUT        /api/v1/users(.:format)                                                                           api/v1/users#update {:format=>:json}
 #                                    DELETE     /api/v1/users(.:format)                                                                           api/v1/users#destroy {:format=>:json}
 #                                    POST       /api/v1/users(.:format)                                                                           api/v1/users#create {:format=>:json}
+#                 async_api_v1_notes GET        /api/v1/notes/async(.:format)                                                                     api/v1/notes#index_async {:format=>:json}
 #                       api_v1_notes GET        /api/v1/notes(.:format)                                                                           api/v1/notes#index {:format=>:json}
 #                                    POST       /api/v1/notes(.:format)                                                                           api/v1/notes#create {:format=>:json}
 #                        api_v1_note GET        /api/v1/notes/:id(.:format)                                                                       api/v1/notes#show {:format=>:json}
