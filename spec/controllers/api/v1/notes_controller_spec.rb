@@ -208,7 +208,17 @@ describe Api::V1::NotesController, type: :controller do
     end
 
     context 'when there is not a user logged in' do
-      before { post :create, params: valid_attributes }
+      let(:attributes) do
+        {
+          note: {
+            title: 'Reseña',
+            note_type: 'review',
+            content: Faker::Lorem.sentence(word_count: 5)
+          }
+        }
+      end
+
+      before { post :create, params: attributes }
 
       it_behaves_like 'unauthorized'
     end
