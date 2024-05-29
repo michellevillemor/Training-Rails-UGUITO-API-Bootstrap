@@ -1,6 +1,10 @@
 module Api
   module V1
     class NotesController < ApplicationController
+      rescue_from ActiveRecord::RecordInvalid, with: :handle_missing_parameters
+      rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_parameters
+      rescue_from ArgumentError, with: :handle_invalid_enums
+
       before_action :authenticate_user!
 
       def index
@@ -12,11 +16,7 @@ module Api
       end
 
       def create
-        note = current_user.notes.new creating_params
-        note.save!
-        render_resource(note)
-      rescue ActiveRecord::RecordInvalid => e
-        handle_record_invalid(e)
+        render_resource(Note.create!(create_params.merge(user: current_user)))
       end
 
       private
@@ -26,12 +26,9 @@ module Api
       end
 
       def notes
-        notes = user_notes.by_filter(filtering_params.compact).paginated(paginating_params)
-        ordering_params? ? apply_sorting(notes) : notes
-      end
-
-      def apply_sorting(notes)
-        notes.order(created_at: params[:order])
+        user_notes.by_filter(filtering_params)
+                  .paginated(paginating_params[:page], paginating_params[:page_size])
+                  .with_order(ordering_params)
       end
 
       def note
@@ -39,33 +36,45 @@ module Api
       end
 
       def filtering_params
-        params.permit(:type, :title)
-              .transform_keys { |key| key == 'type' ? 'note_type' : key }
+        params.permit(:note_type, :title).compact
       end
 
       def paginating_params
-        params.permit(:page, :page_size)
+        params.permit(:page, :page_size).compact
       end
 
-      def ordering_params?
-        params[:order].present?
+      def ordering_params
+        params.permit[:order] || 'asc'
       end
 
-      def creating_params
+      def create_params
         params.require(:note).permit(:title, :note_type, :content)
       end
 
-      def handle_record_invalid(error)
-        note_type_present = error.record.note_type.present?
-        utility_present = error.record.utility.present?
+      def handle_invalid_parameters(e)
+        render_invalid_parameters(e)
+      end
 
-        if note_type_present && utility_present
-          render_missing_parameter(error,
-                                   { note_type: error.record.note_type,
-                                     threshold: error.record.utility.content_short_length })
-        else
-          render_missing_parameter(error)
+      def handle_missing_parameters(e)
+        error_fields = e.record.errors.messages.keys
+        render_missing_parameters(e, error_fields)
+      end
+
+      def handle_invalid_enums(e)
+        error_fields = identify_invalid_enum(Note, create_params)
+        render_invalid_enums(e, error_fields)
+      end
+
+      def identify_invalid_enum(klass, params)
+        invalid_fields = []
+
+        params.each do |key, value|
+          klass_enums = klass.defined_enums
+
+          invalid_fields << key if klass_enums.key?(key.to_s) && !klass_enums[key.to_s].key?(value)
         end
+
+        invalid_fields
       end
     end
   end

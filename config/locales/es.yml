@@ -38,7 +38,6 @@ es:
         content: "El contenido"
         title: "El título"
         note_type: "El tipo de nota"
-        content_length: 
     errors:
       messages:
         internal_server_error: "Falta parametro requerido"
