@@ -13,10 +13,13 @@
 class Note < ApplicationRecord
   scope :by_filter, ->(filters) { where(filters) }
 
-  scope :paginated, ->(params) { page(params[:page]).per(params[:page_size]) }
+  scope :paginated, ->(page, page_size) { page(page).per(page_size) }
+
+  scope :with_order, ->(order) { order(created_at: order || 'asc') }
 
   validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_length, unless: -> { user_id.blank? || content.blank? }
+  validate :validate_note_type
 
   enum note_type: { 'review' => 0, 'critique' => 1 }
 
@@ -29,6 +32,14 @@ class Note < ApplicationRecord
     error_message = I18n.t('activerecord.errors.note.invalid_attribute.content_length',
                            { note_type: note_type, threshold: utility.content_short_length })
     errors.add(:content_length, error_message)
+  end
+
+  def validate_note_type
+    return if Note.note_types.key?(note_type)
+
+    error_message = I18n.t('activerecord.errors.note.invalid_attribute.note_type',
+                           { note_type: note_type })
+    errors.add(:note_type, error_message)
   end
 
   def word_count

@@ -4,8 +4,10 @@ shared_examples 'unprocessable entity with message' do
   end
 
   it 'returns the appropiate error message' do
-    errors = response_body['errors'].map { |error| error['detail'] }
-
-    expect(errors).to all(include(expected_message))
+    if response_body['errors']
+      expect(response_body['errors'].first['detail']).to eq(message)
+    else
+      expect(response_body['error']).to eq(message)
+    end
   end
 end
