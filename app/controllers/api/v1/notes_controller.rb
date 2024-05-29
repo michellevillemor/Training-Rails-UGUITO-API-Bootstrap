@@ -1,20 +1,13 @@
 module Api
   module V1
     class NotesController < ApplicationController
+      rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_attribute
+      rescue_from ArgumentError, with: :handle_invalid_attribute
+
       before_action :authenticate_user!
 
       def index
-        begin
-          render json: notes, status: :ok, each_serializer: NoteSerializer
-        rescue ActiveRecord::StatementInvalid
-          render json: {
-            error: I18n.t('activerecord.errors.messages.invalid_attribute')
-          }, status: :unprocessable_entity
-        rescue ArgumentError => e
-          render json: {
-            error: I18n.t('activerecord.errors.messages.invalid_attribute')
-          }, status: :unprocessable_entity
-        end
+        render json: notes, status: :ok, each_serializer: NoteSerializer
       end
 
       def show
@@ -28,7 +21,9 @@ module Api
       end
 
       def notes
-        user_notes.by_filter(filtering_params).paginated(paginating_params[:page], paginating_params[:page_size]).with_order(ordering_params)
+        user_notes.by_filter(filtering_params)
+                  .paginated(paginating_params[:page], paginating_params[:page_size])
+                  .with_order(ordering_params)
       end
 
       def note
@@ -45,6 +40,13 @@ module Api
 
       def ordering_params
         params.permit[:order] || 'asc'
+      end
+
+      def handle_invalid_attribute(e)
+        render json: {
+          error: I18n.t('activerecord.errors.messages.invalid_attribute'),
+          details: e.message
+        }, status: :unprocessable_entity
       end
     end
   end

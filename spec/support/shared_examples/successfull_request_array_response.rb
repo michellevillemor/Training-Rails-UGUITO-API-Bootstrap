@@ -3,7 +3,7 @@ shared_examples 'successfull request array response' do
     expect(response_body).to be_an(Array)
     expect(response_body.size).to eq(expected.size)
 
-    expect(response_body.first.keys).to match_array(expected_keys) if response_body.size > 0
+    expect(response_body.first.keys).to match_array(expected_keys) unless response_body.empty?
   end
 
   it 'responds with 200 status' do
