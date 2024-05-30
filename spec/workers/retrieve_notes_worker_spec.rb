@@ -8,7 +8,8 @@ describe RetrieveNotesWorker do
       end
     end
 
-    let(:params) { { note_type: 'review' } }
+    let(:author) { 'Rodrigo Lugo Melgar' }
+    let(:params) { { author: author } }
     let(:user) { create(:user, utility: utility) }
 
     let(:expected_notes_keys) do
