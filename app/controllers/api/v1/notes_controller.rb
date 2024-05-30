@@ -1,10 +1,6 @@
 module Api
   module V1
     class NotesController < ApplicationController
-      rescue_from ActiveRecord::RecordInvalid, with: :handle_missing_parameters
-      # rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_parameters
-      # rescue_from ArgumentError, with: :handle_missing_parameters
-
       before_action :authenticate_user!
 
       def index
@@ -16,15 +12,18 @@ module Api
       end
 
       def create
-        if !validate_note_type(create_params[:note_type])
+        if !validate_note_type(create_params[:note_type]) 
           handle_invalid_note_type
         else
+          note = Note.new create_params
+          handle_invalid_content_length if note.validate_content_length
+
           render_resource(Note.create!(create_params.merge(user: current_user)))
         end
       end
 
       private
-
+>
       def user_notes
         current_user.notes
       end
@@ -40,7 +39,7 @@ module Api
       end
 
       def filtering_params
-        params.permit(:note_type, :title).compact
+        params.permit(:note_type).compact
       end
 
       def paginating_params
@@ -52,7 +51,7 @@ module Api
       end
 
       def create_params
-        params.require(:note).permit(:title, :note_type, :content)
+        params.require(:note).permit(:title, :note_type, :content).merge(user_id: current_user.id)
       end
 
       def validate_note_type(note_type)
@@ -65,10 +64,15 @@ module Api
         }, status: :unprocessable_entity
       end
 
-      def handle_missing_parameters(e)
+      def handle_invalid_content_length(e)
         binding.pry
-        error_fields = e.record.errors.messages.keys
-        render_missing_parameters(e, error_fields)
+        json_error = e.record.errors.errors.to_json
+        parsed_error = JSON.parse(json_error)
+        message = parsed_error.first['raw_type']
+
+        render json: {
+          error: message,
+        }, status: :unprocessable_entity
       end
     end
   end

@@ -49,6 +49,7 @@ describe Api::V1::NotesController, type: :controller do
             it_behaves_like 'successfull request array response'
           end
 
+          # ArgumentError
           context 'with invalid note_type filter' do
             let(:notes_expected) { critique_notes }
             let(:params) { { note_type: 'invalid_type' } }
@@ -78,6 +79,7 @@ describe Api::V1::NotesController, type: :controller do
               it_behaves_like 'successfull response array first element'
             end
 
+            # ArgumentError
             context 'when invalid sort value' do
               let(:params) { { order: 'ascendent' } }
 
@@ -168,10 +170,10 @@ describe Api::V1::NotesController, type: :controller do
 
       # ActiveRecord::RecordInvalid
       context 'when required parameters are missing' do
-        let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5) } } }
-        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.title') }
+        let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review'} } }
+        let(:message) { I18n.t('activerecord.errors.messages.internal_server_error') }
 
-        it_behaves_like 'bad request when a parameter is missing'
+        it_behaves_like 'bad request with message'
       end
 
       # Argument Error
@@ -206,7 +208,7 @@ describe Api::V1::NotesController, type: :controller do
         end
         let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length }) }
 
-        it_behaves_like 'bad request with message'
+        it_behaves_like 'unprocessable entity with message'
       end
     end
 
