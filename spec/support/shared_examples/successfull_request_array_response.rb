@@ -3,7 +3,7 @@ shared_examples 'successfull request array response' do
     expect(response_body).to be_an(Array)
     expect(response_body.size).to eq(expected.size)
   end
-    
+
   it 'matches expected keys' do
     expect(response_body.first.keys).to match_array(expected_keys) unless response_body.empty?
   end
