@@ -28,7 +28,7 @@ module Api
       def notes
         user_notes.by_filter(filtering_params)
                   .paginated(paginating_params[:page], paginating_params[:page_size])
-                  .with_order(ordering_params)
+                  .with_order(ordering_params[:order] || 'asc')
       end
 
       def note
@@ -44,7 +44,7 @@ module Api
       end
 
       def ordering_params
-        params.permit[:order] || 'asc'
+        params.permit(:order)
       end
 
       def create_params
