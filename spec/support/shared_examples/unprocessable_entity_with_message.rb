@@ -4,6 +4,7 @@ shared_examples 'unprocessable entity with message' do
   end
 
   it 'returns the appropiate error message' do
-    expect(response_body['error']).to eq(message)
+    expect(response_body['errors'].first['message'])
+      .to eq(message)
   end
 end

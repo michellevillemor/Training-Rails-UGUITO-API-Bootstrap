@@ -37,9 +37,5 @@ en:
       note:
         content: "The content"
     errors:
-      messages:
-        internal_server_error: "Required parameter is missing"
-        record_not_found: "Record not found"
-        invalid_attribute: "Invalid parameter"
       note:
         content_length: "of the %{note_type} is bigger than %{threshold} for %{utility_name}"
