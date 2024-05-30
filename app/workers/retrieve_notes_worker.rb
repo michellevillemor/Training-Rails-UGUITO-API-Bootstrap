@@ -1,12 +1,12 @@
 class RetrieveNotesWorker < BaseUserWorker
   private
   
-  def initialize_variables(author)
-    @author = author
+  def initialize_variables(note_type)
+    @note_type = note_type
   end
   
   def perform_args
-    [@author]
+    [@note_type]
   end
   
   def service
@@ -14,6 +14,6 @@ class RetrieveNotesWorker < BaseUserWorker
   end
   
   def attempt
-    "retrieving notes with author: #{@author}"
+    "retrieving notes with note_type: #{@note_type}"
   end
 end

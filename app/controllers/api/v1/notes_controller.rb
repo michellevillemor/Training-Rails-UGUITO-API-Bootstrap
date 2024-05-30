@@ -57,7 +57,7 @@ module Api
       end
 
       def index_async_params
-        { author: params.require(:author) }
+        { note_type: params.require(:note_type) }
       end
 
       def handle_invalid_parameters(e)

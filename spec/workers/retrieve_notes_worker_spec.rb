@@ -8,12 +8,11 @@ describe RetrieveNotesWorker do
       end
     end
 
-    let(:author) { 'Rodrigo Lugo Melgar' }
-    let(:params) { { author: author } }
+    let(:params) { { note_type: 'review' } }
     let(:user) { create(:user, utility: utility) }
 
     let(:expected_notes_keys) do
-      %i[title type created_at content user book]
+      %i[title note_type created_at content user]
     end
 
     context 'with utility service' do

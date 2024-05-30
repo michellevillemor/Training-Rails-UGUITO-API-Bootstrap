@@ -32,8 +32,7 @@ module UtilityService
             type: note['note_type'],
             created_at: note['created_at'],
             content: note['content'],
-            user: note['user'],
-            book: note['book']
+            user: note['user']
           }
         end
       end
