@@ -2,8 +2,8 @@ module Api
   module V1
     class NotesController < ApplicationController
       rescue_from ActiveRecord::RecordInvalid, with: :handle_missing_parameters
-      rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_parameters
-      rescue_from ArgumentError, with: :handle_invalid_enums
+      # rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_parameters
+      # rescue_from ArgumentError, with: :handle_missing_parameters
 
       before_action :authenticate_user!
 
@@ -16,7 +16,11 @@ module Api
       end
 
       def create
-        render_resource(Note.create!(create_params.merge(user: current_user)))
+        if !validate_note_type(create_params[:note_type])
+          handle_invalid_note_type
+        else
+          render_resource(Note.create!(create_params.merge(user: current_user)))
+        end
       end
 
       private
@@ -51,30 +55,20 @@ module Api
         params.require(:note).permit(:title, :note_type, :content)
       end
 
-      def handle_invalid_parameters(e)
-        render_invalid_parameters(e)
+      def validate_note_type(note_type)
+        Note.note_types.key?(note_type) && !Note.defined_enums.values.include?(create_params[:note_type])
+      end
+
+      def handle_invalid_note_type
+        render json: {
+          error: I18n.t('activerecord.errors.note.invalid_attribute.note_type'),
+        }, status: :unprocessable_entity
       end
 
       def handle_missing_parameters(e)
+        binding.pry
         error_fields = e.record.errors.messages.keys
         render_missing_parameters(e, error_fields)
-      end
-
-      def handle_invalid_enums(e)
-        error_fields = identify_invalid_enum(Note, create_params)
-        render_invalid_enums(e, error_fields)
-      end
-
-      def identify_invalid_enum(klass, params)
-        invalid_fields = []
-
-        params.each do |key, value|
-          klass_enums = klass.defined_enums
-
-          invalid_fields << key if klass_enums.key?(key.to_s) && !klass_enums[key.to_s].key?(value)
-        end
-
-        invalid_fields
       end
     end
   end
