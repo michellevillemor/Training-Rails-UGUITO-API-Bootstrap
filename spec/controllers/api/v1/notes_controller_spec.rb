@@ -35,21 +35,21 @@ describe Api::V1::NotesController, type: :controller do
         end
 
         context 'when fetching notes using note_type filter' do
-          context 'when Review' do
+          context 'with Review note_type' do
             let(:notes_expected) { review_notes }
             let(:params) { { note_type: 'review' } }
 
             it_behaves_like 'successfull request array response'
           end
 
-          context 'when Critique' do
+          context 'with Critique note_type' do
             let(:notes_expected) { critique_notes }
             let(:params) { { note_type: 'critique' } }
 
             it_behaves_like 'successfull request array response'
           end
 
-          context 'when invalid note_type filter' do
+          context 'with invalid note_type filter' do
             let(:notes_expected) { critique_notes }
             let(:params) { { note_type: 'invalid_type' } }
 
@@ -68,6 +68,7 @@ describe Api::V1::NotesController, type: :controller do
               let(:params) { { order: 'asc' } }
 
               it_behaves_like 'successfull request array response'
+              it_behaves_like 'successfull response array first element'
             end
 
             context 'when desc' do
@@ -75,13 +76,15 @@ describe Api::V1::NotesController, type: :controller do
               let(:params) { { order: 'desc' } }
 
               it_behaves_like 'successfull request array response'
+              it_behaves_like 'successfull response array first element'
             end
 
             context 'when invalid sort value' do
-              let(:notes_expected) { sorted_notes }
               let(:params) { { order: 'ascendent' } }
 
-              it_behaves_like 'successfull request array response'
+              let(:message) { I18n.t('activerecord.errors.messages.invalid_attribute') }
+
+              it_behaves_like 'unprocessable entity with message'
             end
           end
         end
