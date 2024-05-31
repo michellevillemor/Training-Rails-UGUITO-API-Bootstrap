@@ -6,7 +6,7 @@ module UtilityService
       end
 
       def retrieve_notes(_response_code, response_body)
-        { notes: map_notes(response_body['notes']) }
+        { notes: map_notes(response_body['notas']) }
       end
 
       private
@@ -26,14 +26,34 @@ module UtilityService
       end
 
       def map_notes(notes)
-        byebug
         notes.map do |note|
+          libro = note['libro']
           {
-            title: note['title'],
-            type: note['note_type'],
-            created_at: note['created_at'],
-            content: note['content'],
-            user: note['user']
+            id: note['id'],
+            title: note['titulo'],
+            note_type: note['tipo'],
+            content: note['contenido'],
+            created_at: note['fecha_creacion'],
+            author: {
+              contact_info: {
+                email: note['email'],
+                phone: note['telefono'],
+              },
+              personal_info: {
+                document_number: note['nro_documento'],
+                name: note['nombre'],
+                surname: note['apellido'],
+              }
+            },
+            book: {
+              id: libro['id'],
+              title: libro['titulo'],
+              author: libro['autor'],
+              genre: libro['genero'],
+              image_url: libro['imagen_url'],
+              publisher: libro['editorial'],
+              year: libro['año'],
+            },
           }
         end
       end

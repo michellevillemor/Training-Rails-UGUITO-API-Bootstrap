@@ -13,8 +13,15 @@ describe RetrieveNotesWorker do
     let(:user) { create(:user, utility: utility) }
 
     let(:expected_notes_keys) do
-      %i[title note_type created_at content user]
+      expected_notes_keys_by_utility[utility.type]
     end
+
+    let(:expected_notes_keys_by_utility) {
+      {
+      'SouthUtility' => %i[id title note_review created_at fullname_author author_email book_author_name book_genre book_title content],
+      'NorthUtility' => %i[id title note_type content created_at author book]
+      }
+    }
 
     context 'with utility service' do
       let_it_be(:utilities) do
