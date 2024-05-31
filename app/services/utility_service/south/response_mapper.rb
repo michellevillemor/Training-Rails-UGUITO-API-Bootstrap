@@ -26,7 +26,7 @@ module UtilityService
       end
 
       def map_notes(notes)
-        notes.map do |note|       
+        notes.map do |note|
           {
             id: note['Id'],
             title: note['TituloNota'],
@@ -37,7 +37,7 @@ module UtilityService
             book_title: note['TituloLibro'],
             book_author_name: note['NombreAutorLibro'],
             book_genre: note['GeneroLibro'],
-            content: note['Contenido'],
+            content: note['Contenido']
           }
         end
       end
