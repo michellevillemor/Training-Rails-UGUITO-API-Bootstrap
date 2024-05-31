@@ -169,7 +169,7 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when required parameters are missing' do
-        let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review'} } }
+        let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review' } } }
         let(:message) { I18n.t('activerecord.errors.messages.internal_server_error') }
 
         it_behaves_like 'bad request when a parameter is missing'
@@ -191,7 +191,7 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when the note content length exceeds the limit for reviews' do
-        utility = Utility.new(type: %w[NorthUtility SouthUtility].sample)
+        utility = Utility.new(type: %w[NorthUtility SouthUtility].sample).freeze
 
         let(:attributes) do
           {

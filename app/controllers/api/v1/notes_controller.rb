@@ -2,7 +2,6 @@ module Api
   module V1
     class NotesController < ApplicationController
       include ParamsHandler
-      
       rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
       rescue_from ActionController::ParameterMissing, with: :handle_missing_parameter
 
@@ -19,7 +18,7 @@ module Api
       def create
         note_params = { note: create_params }
         permitted_params = require_nested(required_note_params[:note], note_params[:note])
-
+        
         if !validate_note_type(note_params[:note][:note_type])
           handle_invalid_note_type
         else
@@ -65,7 +64,7 @@ module Api
 
       def handle_invalid_note_type
         render json: {
-          error: I18n.t('activerecord.errors.note.invalid_attribute.note_type'),
+          error: I18n.t('activerecord.errors.note.invalid_attribute.note_type')
         }, status: :unprocessable_entity
       end
 
@@ -75,13 +74,13 @@ module Api
         message = parsed_error.first
 
         render json: {
-          error: message,
+          error: message
         }, status: :unprocessable_entity
       end
 
-      def handle_missing_parameter(e)
+      def handle_missing_parameter(_e)
         render json: {
-          error: I18n.t('activerecord.errors.messages.internal_server_error'),
+          error: I18n.t('activerecord.errors.messages.internal_server_error')
         }, status: :bad_request
       end
 
