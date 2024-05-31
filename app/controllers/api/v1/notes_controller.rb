@@ -2,6 +2,10 @@ module Api
   module V1
     class NotesController < ApplicationController
       include ParamsHandler
+      
+      rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
+      rescue_from ActionController::ParameterMissing, with: :handle_missing_parameter
+
       before_action :authenticate_user!
 
       def index
@@ -21,10 +25,6 @@ module Api
         else
           render_resource(Note.create!(create_params.merge(user: current_user)))
         end
-      rescue ActiveRecord::RecordInvalid => e
-        handle_invalid_record(e)
-      rescue ActionController::ParameterMissing => e
-        handle_missing_parameter(e)
       end
 
       private
