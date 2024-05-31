@@ -17,8 +17,8 @@ module Api
 
       def create
         note_params = { note: create_params }
-        permitted_params = require_nested(required_note_params[:note], note_params[:note])
-        
+        require_nested(required_note_params[:note], note_params[:note])
+
         if !validate_note_type(note_params[:note][:note_type])
           handle_invalid_note_type
         else
