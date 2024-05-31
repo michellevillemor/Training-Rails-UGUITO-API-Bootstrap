@@ -148,7 +148,7 @@ describe Api::V1::NotesController, type: :controller do
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
 
-      let(:attributes) do
+      let(:params) do
         {
           note: {
             title: 'Reseña',
@@ -157,8 +157,6 @@ describe Api::V1::NotesController, type: :controller do
           }
         }
       end
-
-      let(:params) { attributes }
 
       before { post :create, params: params }
 
@@ -169,14 +167,14 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when required parameters are missing' do
-        let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review' } } }
+        let(:params) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review' } } }
         let(:message) { I18n.t('activerecord.errors.messages.internal_server_error') }
 
         it_behaves_like 'bad request when a parameter is missing'
       end
 
       context 'when the note type is invalid' do
-        let(:attributes) do
+        let(:params) do
           {
             note: {
               title: Faker::Lorem.word,
@@ -191,15 +189,16 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when the note content length exceeds the limit for reviews' do
-        utility = Utility.new(type: %w[NorthUtility SouthUtility].sample).freeze
+        let(:user) { FactoryBot.create(:user) }
+        let(:utility) { user.utility }
 
-        let(:attributes) do
+        let(:params) do
           {
             note: {
               title: 'Reseña',
               note_type: 'review',
               content: Faker::Lorem.sentence(word_count: 150),
-              utility: utility
+              user_id: user.id
             }
           }
         end
@@ -211,7 +210,7 @@ describe Api::V1::NotesController, type: :controller do
     end
 
     context 'when there is not a user logged in' do
-      let(:attributes) do
+      let(:params) do
         {
           note: {
             title: 'Reseña',
@@ -221,7 +220,7 @@ describe Api::V1::NotesController, type: :controller do
         }
       end
 
-      before { post :create, params: attributes }
+      before { post :create, params: params }
 
       it_behaves_like 'unauthorized'
     end
