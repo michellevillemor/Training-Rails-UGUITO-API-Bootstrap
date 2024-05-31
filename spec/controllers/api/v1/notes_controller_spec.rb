@@ -168,15 +168,13 @@ describe Api::V1::NotesController, type: :controller do
         it_behaves_like 'success post request with message'
       end
 
-      # ActiveRecord::RecordInvalid
       context 'when required parameters are missing' do
         let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review'} } }
         let(:message) { I18n.t('activerecord.errors.messages.internal_server_error') }
 
-        it_behaves_like 'bad request with message'
+        it_behaves_like 'bad request when a parameter is missing'
       end
 
-      # Argument Error
       context 'when the note type is invalid' do
         let(:attributes) do
           {
@@ -192,7 +190,6 @@ describe Api::V1::NotesController, type: :controller do
         it_behaves_like 'unprocessable entity with message'
       end
 
-      # ActiveRecord::RecordInvalid + campos
       context 'when the note content length exceeds the limit for reviews' do
         utility = Utility.new(type: %w[NorthUtility SouthUtility].sample)
 
@@ -206,6 +203,7 @@ describe Api::V1::NotesController, type: :controller do
             }
           }
         end
+
         let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length }) }
 
         it_behaves_like 'unprocessable entity with message'

@@ -1,6 +1,7 @@
 module Api
   module V1
     class NotesController < ApplicationController
+      include ParamsHandler
       before_action :authenticate_user!
 
       def index
@@ -12,18 +13,22 @@ module Api
       end
 
       def create
-        if !validate_note_type(create_params[:note_type]) 
+        note_params = { note: create_params }
+        permitted_params = require_nested(required_note_params[:note], note_params[:note])
+
+        if !validate_note_type(note_params[:note][:note_type])
           handle_invalid_note_type
         else
-          note = Note.new create_params
-          handle_invalid_content_length if note.validate_content_length
-
           render_resource(Note.create!(create_params.merge(user: current_user)))
         end
+      rescue ActiveRecord::RecordInvalid => e
+        handle_invalid_record(e)
+      rescue ActionController::ParameterMissing => e
+        handle_missing_parameter(e)
       end
 
       private
->
+
       def user_notes
         current_user.notes
       end
@@ -51,11 +56,11 @@ module Api
       end
 
       def create_params
-        params.require(:note).permit(:title, :note_type, :content).merge(user_id: current_user.id)
+        params.require(:note).permit(:title, :note_type, :content)
       end
 
       def validate_note_type(note_type)
-        Note.note_types.key?(note_type) && !Note.defined_enums.values.include?(create_params[:note_type])
+        Note.note_types.key?(note_type)
       end
 
       def handle_invalid_note_type
@@ -64,15 +69,30 @@ module Api
         }, status: :unprocessable_entity
       end
 
-      def handle_invalid_content_length(e)
-        binding.pry
-        json_error = e.record.errors.errors.to_json
-        parsed_error = JSON.parse(json_error)
-        message = parsed_error.first['raw_type']
+      def handle_invalid_record(e)
+        json_error = e.record.errors.to_json
+        parsed_error = JSON.parse(json_error).values.flatten
+        message = parsed_error.first
 
         render json: {
           error: message,
         }, status: :unprocessable_entity
+      end
+
+      def handle_missing_parameter(e)
+        render json: {
+          error: I18n.t('activerecord.errors.messages.internal_server_error'),
+        }, status: :bad_request
+      end
+
+      def required_note_params
+        {
+          note: {
+            title: true,
+            content: true,
+            note_type: true
+          }
+        }
       end
     end
   end

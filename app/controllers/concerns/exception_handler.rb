@@ -3,11 +3,9 @@ module ExceptionHandler
   extend ActiveSupport::Concern
 
   included do
-    rescue_from ActionController::ParameterMissing, with: :render_missing_parameter
     rescue_from ActionController::UnpermittedParameters, with: :render_incorrect_parameter
     rescue_from ActiveRecord::RecordNotFound, with: :render_nothing_not_found
     rescue_from ActiveRecord::StatementInvalid, with: :render_invalid_parameter
-    rescue_from ActiveRecord::RecordInvalid, with: :render_missing_parameter
     rescue_from Exceptions::ClientForbiddenError, with: :render_client_forbidden
     rescue_from Exceptions::ClientUnauthorizedError, with: :render_client_unauthorized
     rescue_from Exceptions::InvalidCurrentClientError do |_exception|
@@ -19,17 +17,6 @@ module ExceptionHandler
   end
 
   private
-
-  # def render_invalid_parameter(error)
-  #   # The InvalidParameterError exception is raised with the error identifier as a parameter, and
-  #   # the way to access this parameter is by doing error.message
-  #   # render_error(error.message)
-  #   render_error(
-  #     message: I18n.t('activerecord.errors.messages.internal_server_error'),
-  #     meta: error.message,
-  #     status: :bad_request
-  #   )
-  # end
 
   def render_incorrect_parameter(error)
     message = I18n.t('activerecord.errors.messages.internal_server_error')
@@ -62,16 +49,5 @@ module ExceptionHandler
       error: I18n.t('activerecord.errors.messages.invalid_attribute'),
       details: error.message
     }, status: :unprocessable_entity
-  end
-
-  def render_missing_parameter(error)
-    error_details = {
-        status: '400',
-        title: 'Bad Request',
-        detail: I18n.t("activerecord.errors.messages.internal_server_error"),
-        code: '400'
-      }
-
-    render json: { errors: error_details }, status: :bad_request
   end
 end
