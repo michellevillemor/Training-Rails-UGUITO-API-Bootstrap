@@ -47,7 +47,7 @@ ActiveAdmin.register SouthUtility do
       f.input :external_api_secret
       f.input :external_api_authentication_url, as: :url
       f.input :books_data_url, as: :url
-      f.input :notes_data_url, as: url
+      f.input :notes_data_url, as: :url
       f.actions
     end
   end

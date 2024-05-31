@@ -20,6 +20,7 @@ module RequestPerformer # rubocop:disable Metrics/ModuleLength
       # If we need to debug the request's output, we can send a "debug_output: Rails.logger"
       # option to the HTTParty call. This method opens a serious security hole. Never use this
       # method in production code.
+      byebug
       HTTParty.send(
         http_verb, url, query: options[:query], body: options[:body], headers: options[:headers],
                         timeout: options[:timeout]
@@ -117,6 +118,7 @@ module RequestPerformer # rubocop:disable Metrics/ModuleLength
   end
 
   def body_for(method, *args)
+
     request_mapper.send(method, *sanitize_args(args))
   end
 

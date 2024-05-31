@@ -26,6 +26,7 @@ module UtilityService
       end
 
       def map_notes(notes)
+        byebug
         notes.map do |note|
           {
             title: note['title'],

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://private-1971b-widergytrainingsouthutilityapi.apiary-mock.com/notes?autor=Rodrigo%20Lugo%20Melgar
+    uri: https://private-1971b-widergytrainingsouthutilityapi.apiary-mock.com/Notas?Autor=J.K.Rowling
     body:
       encoding: US-ASCII
       string: ''
@@ -15,47 +15,77 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: Not Found
+      code: 200
+      message: OK
     headers:
       Content-Type:
-      - text/html; charset=utf-8
+      - application/json
       Content-Length:
-      - '607'
+      - '1931'
       X-Apiary-Ratelimit-Limit:
       - '120'
       X-Apiary-Ratelimit-Remaining:
       - '119'
-      Etag:
-      - W/"25f-QmUgAOeqEkjFgZjccysyu2AF+2o"
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - OPTIONS,GET,HEAD,POST,PUT,DELETE,TRACE,CONNECT
+      Access-Control-Expose-Headers:
+      - Content-Type
+      Access-Control-Max-Age:
+      - '10'
+      X-Apiary-Transaction-Id:
+      - 6659e0264e38b900a2b323cf
       X-Request-Id:
-      - 4ccd3ab9e68c04492d1d8241dcddf10d
+      - 0fd6ca25ccb497e7ce46385991618951
       Date:
-      - Wed, 29 May 2024 21:54:22 GMT
+      - Fri, 31 May 2024 14:35:18 GMT
       Connection:
       - keep-alive
       Akamai-Grn:
-      - 0.c7f71202.1717019661.5d353bc1
+      - 0.a4212ac8.1717166117.1202c3a4
     body:
       encoding: UTF-8
-      string: |
-        <!doctype html>
-        <html lang="en">
-        <meta charset="utf-8">
-        <title>apiary.io—404—No Resource Found!</title>
-        <body>
-        <div id="bg"></div>
-         <div id="message">
-          <h1>The resource you're looking for doesn't exist. <br>Please check the <a href="https://widergytrainingsouthutilityapi.docs.apiary.io/">API documentation</a> or have a look on available resources below.</h1>
-          <p></p>
-              <ol>
-                      <section><h2></h2>
-                              <li><b>GET</b> /Libros{?Autor}</li>
-                              <li><b>GET</b> /Notas{?Autor}</li>
-                          </section>
-                  </ol>
-            </div>
-        </body>
-        </html>
-  recorded_at: Wed, 29 May 2024 21:54:22 GMT
+      string: |-
+        {
+            "Notas": [
+                {
+                    "Id": 1,
+                    "TituloNota": "Reseña",
+                    "ReseniaNota": true,
+                    "FechaCreacionNota": "2022-05-20T14:20:55-03:00",
+                    "EmailAutor": "silvanasuarez@north.com",
+                    "NombreCompletoAutor": "Suarez Silvana",
+                    "TituloLibro": "Harry Potter y la piedra filosofal",
+                    "NombreAutorLibro": "J.K.Rowling",
+                    "GeneroLibro": "fantasia",
+                    "Contenido": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum commodo nulla at eros sollicitudin, vel feugiat nibh malesuada. Fusce vel ante vel dolor convallis ultrices."
+                },
+                {
+                    "Id": 2,
+                    "TituloNota": "Reseña",
+                    "ReseniaNota": true,
+                    "FechaCreacionNota": "2021-03-11T11:23:43-03:00",
+                    "EmailAutor": "roquesigal@north.com",
+                    "NombreCompletoAutor": "Sigal Roque",
+                    "TituloLibro": "Harry Potter y la cámara secreta",
+                    "NombreAutorLibro": "J.K.Rowling",
+                    "GeneroLibro": "fantasia",
+                    "Contenido": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum commodo nulla at eros sollicitudin, vel feugiat nibh malesuada. Fusce vel ante vel dolor convallis ultrices."
+                },
+                {
+                    "Id": 3,
+                    "TituloNota": "Critica",
+                    "ReseniaNota": false,
+                    "FechaCreacionNota": "2023-01-06T08:10:11-03:00",
+                    "EmailAutor": "rociomartinez@north.com",
+                    "NombreCompletoAutor": "Martinez Rocio",
+                    "TituloLibro": "Animales fantásticos y dónde encontrarlos",
+                    "NombreAutorLibro": "J.K.Rowling",
+                    "GeneroLibro": "fantasia",
+                    "Contenido": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum commodo nulla at eros sollicitudin, vel feugiat nibh malesuada. Fusce vel ante vel dolor convallis ultrices."
+                }
+            ]
+        }
+  recorded_at: Fri, 31 May 2024 14:35:18 GMT
 recorded_with: VCR 6.2.0
