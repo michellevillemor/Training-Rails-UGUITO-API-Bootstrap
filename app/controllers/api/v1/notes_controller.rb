@@ -1,9 +1,9 @@
 module Api
   module V1
     class NotesController < ApplicationController
-      rescue_from ActiveRecord::RecordInvalid, with: :handle_missing_parameters
-      rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_parameters
-      rescue_from ArgumentError, with: :handle_invalid_enums
+      include ParamsHandler
+      rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
+      rescue_from ActionController::ParameterMissing, with: :handle_missing_parameter
 
       before_action :authenticate_user!
 
@@ -16,7 +16,19 @@ module Api
       end
 
       def create
-        render_resource(Note.create!(create_params.merge(user: current_user)))
+        note_params = { note: create_params }
+        require_nested(required_note_params[:note], note_params[:note])
+
+        if !validate_note_type(note_params[:note][:note_type])
+          handle_invalid_note_type
+        else
+          render_resource(Note.create!(create_params.merge(user: current_user)))
+        end
+      end
+
+      def index_async
+        response = execute_async(RetrieveNotesWorker, current_user.id, index_async_params)
+        async_custom_response(response)
       end
 
       def index_async
@@ -33,7 +45,7 @@ module Api
       def notes
         user_notes.by_filter(filtering_params)
                   .paginated(paginating_params[:page], paginating_params[:page_size])
-                  .with_order(ordering_params)
+                  .with_order(ordering_params[:order] || 'asc')
       end
 
       def note
@@ -41,7 +53,7 @@ module Api
       end
 
       def filtering_params
-        params.permit(:note_type, :title).compact
+        params.permit(:note_type).compact
       end
 
       def paginating_params
@@ -49,7 +61,7 @@ module Api
       end
 
       def ordering_params
-        params.permit[:order] || 'asc'
+        params.permit(:order)
       end
 
       def create_params
@@ -60,30 +72,44 @@ module Api
         { author: params.require(:author) }
       end
 
-      def handle_invalid_parameters(e)
-        render_invalid_parameters(e)
+      def index_async_params
+        { author: params.require(:author) }
       end
 
-      def handle_missing_parameters(e)
-        error_fields = e.record.errors.messages.keys
-        render_missing_parameters(e, error_fields)
+      def validate_note_type(note_type)
+        Note.note_types.key?(note_type)
       end
 
-      def handle_invalid_enums(e)
-        error_fields = identify_invalid_enum(Note, create_params)
-        render_invalid_enums(e, error_fields)
+      def handle_invalid_note_type
+        render json: {
+          error: I18n.t('activerecord.errors.note.invalid_attribute.note_type')
+        }, status: :unprocessable_entity
       end
 
-      def identify_invalid_enum(klass, params)
-        invalid_fields = []
+      def handle_invalid_record(e)
+        json_error = e.record.errors.to_json
+        parsed_error = JSON.parse(json_error).values.flatten
+        message = parsed_error.first
 
-        params.each do |key, value|
-          klass_enums = klass.defined_enums
+        render json: {
+          error: message
+        }, status: :unprocessable_entity
+      end
 
-          invalid_fields << key if klass_enums.key?(key.to_s) && !klass_enums[key.to_s].key?(value)
-        end
+      def handle_missing_parameter(_e)
+        render json: {
+          error: I18n.t('activerecord.errors.messages.internal_server_error')
+        }, status: :bad_request
+      end
 
-        invalid_fields
+      def required_note_params
+        {
+          note: {
+            title: true,
+            content: true,
+            note_type: true
+          }
+        }
       end
     end
   end

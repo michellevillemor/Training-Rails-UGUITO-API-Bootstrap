@@ -35,21 +35,22 @@ describe Api::V1::NotesController, type: :controller do
         end
 
         context 'when fetching notes using note_type filter' do
-          context 'when Review' do
+          context 'with Review note_type' do
             let(:notes_expected) { review_notes }
             let(:params) { { note_type: 'review' } }
 
             it_behaves_like 'successfull request array response'
           end
 
-          context 'when Critique' do
+          context 'with Critique note_type' do
             let(:notes_expected) { critique_notes }
             let(:params) { { note_type: 'critique' } }
 
             it_behaves_like 'successfull request array response'
           end
 
-          context 'when invalid note_type filter' do
+          # ArgumentError
+          context 'with invalid note_type filter' do
             let(:notes_expected) { critique_notes }
             let(:params) { { note_type: 'invalid_type' } }
             let(:message) { I18n.t('activerecord.errors.messages.invalid_attribute') }
@@ -67,6 +68,7 @@ describe Api::V1::NotesController, type: :controller do
               let(:params) { { order: 'asc' } }
 
               it_behaves_like 'successfull request array response'
+              it_behaves_like 'successfull response array first element'
             end
 
             context 'when desc' do
@@ -74,13 +76,16 @@ describe Api::V1::NotesController, type: :controller do
               let(:params) { { order: 'desc' } }
 
               it_behaves_like 'successfull request array response'
+              it_behaves_like 'successfull response array first element'
             end
 
+            # ArgumentError
             context 'when invalid sort value' do
-              let(:notes_expected) { sorted_notes }
               let(:params) { { order: 'ascendent' } }
 
-              it_behaves_like 'successfull request array response'
+              let(:message) { I18n.t('activerecord.errors.messages.invalid_attribute') }
+
+              it_behaves_like 'unprocessable entity with message'
             end
           end
         end
@@ -143,7 +148,7 @@ describe Api::V1::NotesController, type: :controller do
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
 
-      let(:attributes) do
+      let(:params) do
         {
           note: {
             title: 'Reseña',
@@ -153,8 +158,6 @@ describe Api::V1::NotesController, type: :controller do
         }
       end
 
-      let(:params) { attributes }
-
       before { post :create, params: params }
 
       context 'when the note is created successfully' do
@@ -163,17 +166,15 @@ describe Api::V1::NotesController, type: :controller do
         it_behaves_like 'success post request with message'
       end
 
-      # ActiveRecord::RecordInvalid
       context 'when required parameters are missing' do
-        let(:attributes) { { note: { content: Faker::Lorem.sentence(word_count: 5) } } }
-        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.title') }
+        let(:params) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review' } } }
+        let(:message) { I18n.t('activerecord.errors.messages.internal_server_error') }
 
         it_behaves_like 'bad request when a parameter is missing'
       end
 
-      # Argument Error
       context 'when the note type is invalid' do
-        let(:attributes) do
+        let(:params) do
           {
             note: {
               title: Faker::Lorem.word,
@@ -187,28 +188,29 @@ describe Api::V1::NotesController, type: :controller do
         it_behaves_like 'unprocessable entity with message'
       end
 
-      # ActiveRecord::RecordInvalid + campos
       context 'when the note content length exceeds the limit for reviews' do
-        utility = Utility.new(type: %w[NorthUtility SouthUtility].sample)
+        let(:user) { FactoryBot.create(:user) }
+        let(:utility) { user.utility }
 
-        let(:attributes) do
+        let(:params) do
           {
             note: {
               title: 'Reseña',
               note_type: 'review',
               content: Faker::Lorem.sentence(word_count: 150),
-              utility: utility
+              user_id: user.id
             }
           }
         end
+
         let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length }) }
 
-        it_behaves_like 'bad request with message'
+        it_behaves_like 'unprocessable entity with message'
       end
     end
 
     context 'when there is not a user logged in' do
-      let(:attributes) do
+      let(:params) do
         {
           note: {
             title: 'Reseña',
@@ -218,7 +220,7 @@ describe Api::V1::NotesController, type: :controller do
         }
       end
 
-      before { post :create, params: attributes }
+      before { post :create, params: params }
 
       it_behaves_like 'unauthorized'
     end

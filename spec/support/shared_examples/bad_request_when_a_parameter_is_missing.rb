@@ -4,7 +4,6 @@ shared_examples 'bad request when a parameter is missing' do
   end
 
   it 'returns an error message' do
-    expect(response_body['errors'].first['detail'])
-      .to eq(message)
+    expect(response_body['error']).to eq(message)
   end
 end
