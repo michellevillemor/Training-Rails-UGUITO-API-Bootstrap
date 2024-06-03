@@ -56,4 +56,3 @@ ActiveAdmin.register Book do
     end
   end
 end
-
