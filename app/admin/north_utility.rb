@@ -7,6 +7,7 @@ ActiveAdmin.register NorthUtility do
   permit_params = %i[
     name code base_url external_api_key external_api_secret
     external_api_authentication_url books_data_url notes_data_url
+    content_short_length content_medium_length
   ]
 
   member_action :copy, method: :get do
@@ -30,6 +31,8 @@ ActiveAdmin.register NorthUtility do
     id_column
     column :name
     column :code
+    column :content_short_length
+    column :content_medium_length
     actions
   end
 
@@ -49,6 +52,8 @@ ActiveAdmin.register NorthUtility do
       f.input :external_api_authentication_url, as: :url
       f.input :books_data_url, as: :url
       f.input :notes_data_url, as: :url
+      f.input :content_short_length
+      f.input :content_medium_length
       f.actions
     end
   end
