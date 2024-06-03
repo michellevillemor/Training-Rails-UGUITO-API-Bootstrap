@@ -49,7 +49,6 @@ describe Api::V1::NotesController, type: :controller do
             it_behaves_like 'successfull request array response'
           end
 
-          # ArgumentError
           context 'with invalid note_type filter' do
             let(:notes_expected) { critique_notes }
             let(:params) { { note_type: 'invalid_type' } }
@@ -79,7 +78,6 @@ describe Api::V1::NotesController, type: :controller do
               it_behaves_like 'successfull response array first element'
             end
 
-            # ArgumentError
             context 'when invalid sort value' do
               let(:params) { { order: 'ascendent' } }
 
@@ -145,45 +143,48 @@ describe Api::V1::NotesController, type: :controller do
   end
 
   describe 'POST #create' do
+    let(:base_create_params) do
+      {
+        note: {
+          title: 'Reseña',
+          note_type: 'review',
+          content: Faker::Lorem.sentence(word_count: 5)
+        }
+      }
+    end
+
     context 'when there is a user logged in' do
       include_context 'with authenticated user'
 
-      let(:params) do
-        {
-          note: {
-            title: 'Reseña',
-            note_type: 'review',
-            content: Faker::Lorem.sentence(word_count: 5)
-          }
-        }
-      end
-
-      before { post :create, params: params }
+      before { post :create, params: create_params }
 
       context 'when the note is created successfully' do
+        let(:create_params) { base_create_params }
         let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note') }) }
+
+        it 'creates a new note and increases the note count by 1' do
+          expect do
+            post :create, params: create_params
+          end.to change(Note, :count).by(1)
+        end
 
         it_behaves_like 'success post request with message'
       end
 
       context 'when required parameters are missing' do
-        let(:params) { { note: { content: Faker::Lorem.sentence(word_count: 5), note_type: 'review' } } }
-        let(:message) { I18n.t('activerecord.errors.messages.internal_server_error') }
+        let(:missing_parameter) { [%i[content note_type title]].sample }
+        let(:create_params) do
+          params = base_create_params.deep_dup
+          params[:note].delete(missing_parameter)
+        end
+        let(:message) { I18n.t('activerecord.errors.messages.missing_parameter') }
 
         it_behaves_like 'bad request when a parameter is missing'
       end
 
       context 'when the note type is invalid' do
-        let(:params) do
-          {
-            note: {
-              title: Faker::Lorem.word,
-              note_type: 'invalid_type',
-              content: Faker::Lorem.sentence(word_count: 5)
-            }
-          }
-        end
-        let(:message) { I18n.t('errors.messages.invalid_attribute.note_type') }
+        let(:create_params) { base_create_params.deep_merge(note: { note_type: 'invalid_type' }) }
+        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.note_type') }
 
         it_behaves_like 'unprocessable entity with message'
       end
@@ -191,36 +192,25 @@ describe Api::V1::NotesController, type: :controller do
       context 'when the note content length exceeds the limit for reviews' do
         let(:user) { FactoryBot.create(:user) }
         let(:utility) { user.utility }
-
-        let(:params) do
-          {
-            note: {
-              title: 'Reseña',
+        let(:create_params) { base_create_params.deep_merge(note: { content: Faker::Lorem.sentence(word_count: 150), user_id: user.id }) }
+        let(:message) do
+          I18n.t(
+            'activerecord.errors.note.invalid_attribute.content_length',
+            {
               note_type: 'review',
-              content: Faker::Lorem.sentence(word_count: 150),
-              user_id: user.id
+              threshold: utility.content_short_length
             }
-          }
+          )
         end
-
-        let(:message) { I18n.t('activerecord.errors.note.invalid_attribute.content_length', { note_type: 'review', threshold: utility.content_short_length }) }
 
         it_behaves_like 'unprocessable entity with message'
       end
     end
 
     context 'when there is not a user logged in' do
-      let(:params) do
-        {
-          note: {
-            title: 'Reseña',
-            note_type: 'review',
-            content: Faker::Lorem.sentence(word_count: 5)
-          }
-        }
-      end
+      let(:create_params) { base_create_params }
 
-      before { post :create, params: params }
+      before { post :create, params: create_params }
 
       it_behaves_like 'unauthorized'
     end
