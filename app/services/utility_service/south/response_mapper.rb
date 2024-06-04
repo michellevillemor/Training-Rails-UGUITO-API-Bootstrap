@@ -28,16 +28,20 @@ module UtilityService
       def map_notes(notes)
         notes.map do |note|
           {
-            id: note['Id'],
             title: note['TituloNota'],
-            note_review: note['ReseniaNota'],
+            note_type: note['ReseniaNota'] ? 'review' : 'critique',
             created_at: note['FechaCreacionNota'],
-            author_email: note['EmailAutor'],
-            fullname_author: note['NombreCompletoAutor'],
-            book_title: note['TituloLibro'],
-            book_author_name: note['NombreAutorLibro'],
-            book_genre: note['GeneroLibro'],
-            content: note['Contenido']
+            content: note['Contenido'],
+            user: {
+              email:  note['EmailAutor'],
+              # first_name: note['NombreCompletoAutor'],
+              last_name: note['NombreCompletoAutor'],
+            }
+            book: {
+              title: note['TituloLibro'],
+              author:note['NombreAutorLibro'],
+              genre: note['GeneroLibro'],
+            }
           }
         end
       end
