@@ -4,6 +4,8 @@ module Api
       rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_attribute
       rescue_from ArgumentError, with: :handle_invalid_attribute
 
+      before_action :authenticate_user!
+
       def index
         render json: notes, status: :ok, each_serializer: NoteSerializer
       end
@@ -14,14 +16,18 @@ module Api
 
       private
 
+      def user_notes
+        current_user.notes
+      end
+
       def notes
-        Note.by_filter(filtering_params)
-            .paginated(paginating_params[:page], paginating_params[:page_size])
-            .with_order(ordering_params[:order] || 'asc')
+        user_notes.by_filter(filtering_params)
+                  .paginated(paginating_params[:page], paginating_params[:page_size])
+                  .with_order(ordering_params[:order] || 'asc')
       end
 
       def note
-        Note.find(params.require(:id))
+        user_notes.find(params.require(:id))
       end
 
       def filtering_params
