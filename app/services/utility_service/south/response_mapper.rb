@@ -35,12 +35,12 @@ module UtilityService
             user: {
               email: note['EmailAutor'],
               first_name: map_name(note)[:first_name],
-              last_name: map_name(note)[:last_name],
+              last_name: map_name(note)[:last_name]
             },
             book: {
               title: note['TituloLibro'],
-              author:note['NombreAutorLibro'],
-              genre: note['GeneroLibro'],
+              author: note['NombreAutorLibro'],
+              genre: note['GeneroLibro']
             }
           }
         end
@@ -52,10 +52,10 @@ module UtilityService
 
       def map_name(note)
         full_name = note['NombreCompletoAutor']
-        splitted_full_name = full_name.split()
+        splitted_full_name = full_name.split
         {
           first_name: splitted_full_name[0],
-          last_name: splitted_full_name[1..-1].join(' ')
+          last_name: splitted_full_name[1..].join(' ')
         }
       end
     end

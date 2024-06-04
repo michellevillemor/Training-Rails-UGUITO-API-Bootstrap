@@ -51,7 +51,7 @@ module UtilityService
       end
 
       def map_note_type(type)
-        if type == 'opinion' || type == 'resenia'
+        if %w[opinion resenia].include?(type)
           'review'
         else
           'critique'
