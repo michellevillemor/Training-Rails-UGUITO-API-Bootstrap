@@ -154,16 +154,18 @@ describe Api::V1::NotesController, type: :controller do
     end
 
     context 'when there is a user logged in' do
+      subject { post :create, params: create_params }
+
       include_context 'with authenticated user'
 
-      before { post :create, params: create_params }
+      before { subject }
 
       context 'when the note is created successfully' do
         let(:create_params) { base_create_params }
         let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note') }) }
 
         it 'creates a new note and increases the note count by 1' do
-          expect { post :create, params: create_params }.to change(Note, :count).by(1)
+          expect(user.notes.count).to eq(1)
         end
 
         it_behaves_like 'success post request with message'
