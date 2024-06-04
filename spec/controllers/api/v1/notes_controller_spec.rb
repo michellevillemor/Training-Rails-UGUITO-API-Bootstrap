@@ -163,9 +163,7 @@ describe Api::V1::NotesController, type: :controller do
         let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note') }) }
 
         it 'creates a new note and increases the note count by 1' do
-          expect do
-            post :create, params: create_params
-          end.to change(Note, :count).by(1)
+          expect { post :create, params: create_params }.to change(Note, :count).by(1)
         end
 
         it_behaves_like 'success post request with message'
@@ -173,10 +171,7 @@ describe Api::V1::NotesController, type: :controller do
 
       context 'when required parameters are missing' do
         let(:missing_parameter) { [%i[content note_type title]].sample }
-        let(:create_params) do
-          params = base_create_params.deep_dup
-          params[:note].delete(missing_parameter)
-        end
+        let(:create_params) { base_create_params[:note].except(missing_parameter) }
         let(:message) { I18n.t('activerecord.errors.messages.missing_parameter') }
 
         it_behaves_like 'bad request when a parameter is missing'
