@@ -18,26 +18,27 @@ RSpec.describe User, type: :model do
   end
 
   describe '#full_name' do
-      let(:first_name) { Faker::Name.neutral_first_name }
-      let(:last_name) { Faker::Name.last_name }
+    let(:first_name) { Faker::Name.neutral_first_name }
+    let(:last_name) { Faker::Name.last_name }
+    let(:user) { create(:user, first_name: first_name, last_name: last_name) }
 
     it 'returns the full name of the user' do
-      user = User.new(first_name: first_name, last_name: last_name)
       expect(user.full_name).to eq("#{first_name} #{last_name}")
     end
 
     it 'handles missing first name' do
-      user = User.new(first_name: '', last_name: last_name)
-      expect(user.full_name).to eq("#{last_name}")
+      user[:first_name] = ''
+      expect(user.full_name).to eq(last_name)
     end
 
     it 'handles missing last name' do
-      user = User.new(first_name: first_name, last_name: '')
-      expect(user.full_name).to eq("#{first_name}")
+      user[:last_name] = ''
+      expect(user.full_name).to eq(first_name)
     end
 
     it 'handles missing first and last name' do
-      user = User.new(first_name: '', last_name: '')
+      user[:first_name] = ''
+      user[:last_name] = ''
       expect(user.full_name).to eq('')
     end
   end
