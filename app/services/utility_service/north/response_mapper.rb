@@ -30,7 +30,7 @@ module UtilityService
             note_type: map_note_type(note['tipo']),
             content: note['contenido'],
             created_at: note['fecha_creacion'],
-            user: map_author(note),
+            user: map_author(note['autor']),
             book: map_book(note['libro'])
           }
         end
@@ -48,11 +48,14 @@ module UtilityService
         }
       end
 
-      def map_author(note)
+      def map_author(author)
+        author_contact_data = author['datos_de_contacto']
+        author_personal_data = author['datos_personales']
+
         {
-          email: note['email'],
-          name: note['nombre'],
-          surname: note['apellido']
+          email: author_contact_data['email'],
+          name: author_personal_data['nombre'],
+          surname: author_personal_data['apellido']
         }
       end
 
