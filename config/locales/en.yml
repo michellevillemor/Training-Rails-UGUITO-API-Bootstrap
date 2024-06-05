@@ -30,16 +30,17 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
-  word: "words"
   activerecord:
-    attributes:
-      note:
-        content: "The content"
+    models:
+      note: "Note"
     errors:
       messages:
-        internal_server_error: "Required parameter is missing"
+        missing_parameter: "Required parameter is missing"
         record_not_found: "Record not found"
         invalid_attribute: "Invalid parameter"
       note:
-        content_length: "of the %{note_type} is bigger than %{threshold} for %{utility_name}"
+        invalid_attribute:
+          content_length: "A %{note_type} cant be over %{word_count} words"
+          note_type: "The note type is invalid"
+    success:
+      create: "%{resource} successfully created."

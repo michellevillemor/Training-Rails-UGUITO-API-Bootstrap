@@ -1,8 +1,8 @@
 module Api
   module V1
     class NotesController < ApplicationController
-      rescue_from ActiveRecord::StatementInvalid, with: :handle_invalid_attribute
-      rescue_from ArgumentError, with: :handle_invalid_attribute
+      rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
+      rescue_from ActionController::ParameterMissing, with: :handle_missing_parameter
 
       before_action :authenticate_user!
 
@@ -12,6 +12,11 @@ module Api
 
       def show
         render json: note, status: :ok, serializer: NoteDetailSerializer
+      end
+
+      def create
+        return handle_invalid_note_type unless valid_note_type?
+        render_resource(Note.create!(create_params.merge(user: current_user)))
       end
 
       private
@@ -31,7 +36,7 @@ module Api
       end
 
       def filtering_params
-        params.permit(:note_type, :title).compact
+        params.permit(:note_type).compact
       end
 
       def paginating_params
@@ -42,10 +47,24 @@ module Api
         params.permit(:order)
       end
 
-      def handle_invalid_attribute(e)
+      def create_params
+        params.require(:note).require(%i[title note_type content])
+        params.require(:note).permit(:title, :note_type, :content)
+      end
+
+      def valid_note_type?
+        Note.note_types.key?(create_params[:note_type])
+      end
+
+      def handle_invalid_note_type
         render json: {
-          error: I18n.t('activerecord.errors.messages.invalid_attribute'),
-          details: e.message
+          error: I18n.t('activerecord.errors.note.invalid_attribute.note_type')
+        }, status: :unprocessable_entity
+      end
+
+      def handle_invalid_record(e)
+        render json: {
+          error: e.record.errors.values.first
         }, status: :unprocessable_entity
       end
     end

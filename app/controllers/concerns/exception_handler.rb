@@ -3,10 +3,9 @@ module ExceptionHandler
   extend ActiveSupport::Concern
 
   included do
-    rescue_from ActionController::ParameterMissing, with: :render_incorrect_parameter
     rescue_from ActionController::UnpermittedParameters, with: :render_incorrect_parameter
     rescue_from ActiveRecord::RecordNotFound, with: :render_nothing_not_found
-    rescue_from ActiveRecord::StatementInvalid, with: :render_invalid_argument
+    rescue_from ActiveRecord::StatementInvalid, with: :render_invalid_parameter
     rescue_from Exceptions::ClientForbiddenError, with: :render_client_forbidden
     rescue_from Exceptions::ClientUnauthorizedError, with: :render_client_unauthorized
     rescue_from Exceptions::InvalidCurrentClientError do |_exception|
@@ -14,16 +13,10 @@ module ExceptionHandler
     end
     rescue_from Exceptions::UtilityUnavailableError, with: :render_utility_unavailable
     rescue_from Exceptions::InvalidParameterError, with: :render_invalid_parameter
-    rescue_from ::ArgumentError, with: :render_invalid_argument
+    rescue_from ArgumentError, with: :render_invalid_parameter
   end
 
   private
-
-  def render_invalid_parameter(error)
-    # The InvalidParameterError exception is raised with the error identifier as a parameter, and
-    # the way to access this parameter is by doing error.message
-    render_error(error.message)
-  end
 
   def render_incorrect_parameter(error)
     message = I18n.t('activerecord.errors.messages.internal_server_error')
@@ -51,9 +44,16 @@ module ExceptionHandler
     render_error(:utility_unavailable, status: :internal_server_error)
   end
 
-  def render_invalid_argument
+  def render_invalid_parameter(error)
     render json: {
-      error: I18n.t('activerecord.errors.messages.invalid_attribute')
+      error: I18n.t('activerecord.errors.messages.invalid_attribute'),
+      details: error.message
     }, status: :unprocessable_entity
+  end
+
+  def handle_missing_parameter
+    render json: {
+      error: I18n.t('activerecord.errors.messages.missing_parameter')
+    }, status: :bad_request
   end
 end

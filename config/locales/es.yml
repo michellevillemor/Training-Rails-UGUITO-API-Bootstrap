@@ -30,15 +30,17 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 es:
-  hello: "Hola Mundo!"
   activerecord:
-    attributes:
-      note:
-        content: "El contenido"
+    models:
+      note: "Nota"
     errors:
       messages:
-        internal_server_error: "Falta parametro requerido"
+        missing_parameter: "Falta parametro requerido"
         record_not_found: "No se encuentra el registro"
         invalid_attribute: "El parametro es invalido"
       note:
-        content_length: "de la %{note_type} es mayor a %{threshold} para %{utility_name}"
+        invalid_attribute:
+          content_length: "Una %{note_type} no puede superar las %{threshold} palabras"
+          note_type: "El tipo de nota no es válido"
+    success:
+      create: "%{resource} creada con éxito."

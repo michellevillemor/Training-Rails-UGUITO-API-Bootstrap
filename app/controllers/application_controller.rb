@@ -42,7 +42,11 @@ class ApplicationController < ActionController::Base
   end
 
   def resource_created(resource)
-    render json: resource, status: :created
+    resource_name = resource.class.name.downcase
+    message = I18n.t('activerecord.success.create',
+                     { resource: I18n.t("activerecord.models.#{resource_name}") })
+
+    render json: { message: message }, status: :created
   end
 
   def access_denied(exception)
