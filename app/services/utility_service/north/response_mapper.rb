@@ -1,6 +1,12 @@
 module UtilityService
   module North
     class ResponseMapper < UtilityService::ResponseMapper
+      NOTE_TYPES = {
+        'opinion' => 'review',
+        'resenia' => 'review',
+        'critica' => 'critique'
+      }.freeze
+
       def retrieve_books(_response_code, response_body)
         { books: map_books(response_body['libros']) }
       end
@@ -50,12 +56,8 @@ module UtilityService
         }
       end
 
-      def map_note_type(type)
-        if %w[opinion resenia].include?(type)
-          'review'
-        else
-          'critique'
-        end
+      def map_note_type(note_type)
+        NOTE_TYPES[note_type]
       end
     end
   end

@@ -8,7 +8,7 @@ describe RetrieveNotesWorker do
       end
     end
 
-    let(:author) { 'J.K.Rowling' }
+    let(:author) { 'Rodrigo Lugo Melgar' }
     let(:params) { { author: author } }
     let(:user) { create(:user, utility: utility) }
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://private-1971b-widergytrainingsouthutilityapi.apiary-mock.com/Notas?Autor=J.K.Rowling
+    uri: https://private-1971b-widergytrainingsouthutilityapi.apiary-mock.com/Notas?Autor=Rodrigo%20Lugo%20Melgar
     body:
       encoding: US-ASCII
       string: ''
@@ -25,7 +25,7 @@ http_interactions:
       X-Apiary-Ratelimit-Limit:
       - '120'
       X-Apiary-Ratelimit-Remaining:
-      - '119'
+      - '118'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -35,15 +35,15 @@ http_interactions:
       Access-Control-Max-Age:
       - '10'
       X-Apiary-Transaction-Id:
-      - 6659e0264e38b900a2b323cf
+      - 6660594455ca780092e49083
       X-Request-Id:
-      - 0fd6ca25ccb497e7ce46385991618951
+      - c5b707f7b0f5ec31cad43a3320f0163e
       Date:
-      - Fri, 31 May 2024 14:35:18 GMT
+      - Wed, 05 Jun 2024 12:25:41 GMT
       Connection:
       - keep-alive
       Akamai-Grn:
-      - 0.a4212ac8.1717166117.1202c3a4
+      - 0.c4f71202.1717590339.2f768851
     body:
       encoding: UTF-8
       string: |-
@@ -87,5 +87,5 @@ http_interactions:
                 }
             ]
         }
-  recorded_at: Fri, 31 May 2024 14:35:18 GMT
+  recorded_at: Wed, 05 Jun 2024 12:25:41 GMT
 recorded_with: VCR 6.2.0

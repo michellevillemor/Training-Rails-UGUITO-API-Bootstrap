@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://private-bfc6a-widergytrainingnorthutilityapi.apiary-mock.com/notas?autor=J.K.Rowling
+    uri: https://private-bfc6a-widergytrainingnorthutilityapi.apiary-mock.com/notas?autor=Rodrigo%20Lugo%20Melgar
     body:
       encoding: US-ASCII
       string: ''
@@ -35,15 +35,15 @@ http_interactions:
       Access-Control-Max-Age:
       - '10'
       X-Apiary-Transaction-Id:
-      - 6659fe54097ad8008b72fa63
+      - 6660592375825000900e8492
       X-Request-Id:
-      - 314ccd082e776ee21b0095a8b39085c0
+      - 405f3b44e2411d5ecc28ae866aaa6747
       Date:
-      - Fri, 31 May 2024 16:44:05 GMT
+      - Wed, 05 Jun 2024 12:25:07 GMT
       Connection:
       - keep-alive
       Akamai-Grn:
-      - 0.a4212ac8.1717173844.128c86f5
+      - 0.c7f71202.1717590307.26086ae8
     body:
       encoding: UTF-8
       string: "{\n    \"notas\": [\n        {\n            \"id\": 1,\n            \"titulo\":
@@ -87,5 +87,5 @@ http_interactions:
         \"fantasia\",\n                \"imagen_url\": \"https://some_url.com\",\n
         \               \"editorial\": \"Nice Books\",\n                \"año\": \"2001\"\n
         \           }\n        }\n    ]\n}"
-  recorded_at: Fri, 31 May 2024 16:44:05 GMT
+  recorded_at: Wed, 05 Jun 2024 12:25:07 GMT
 recorded_with: VCR 6.2.0
