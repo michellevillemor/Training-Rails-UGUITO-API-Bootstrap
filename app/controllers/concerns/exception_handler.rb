@@ -50,4 +50,10 @@ module ExceptionHandler
       details: error.message
     }, status: :unprocessable_entity
   end
+
+  def handle_missing_parameter
+    render json: {
+      error: I18n.t('activerecord.errors.messages.missing_parameter')
+    }, status: :bad_request
+  end
 end

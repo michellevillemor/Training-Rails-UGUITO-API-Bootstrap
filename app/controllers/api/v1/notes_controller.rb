@@ -1,7 +1,6 @@
 module Api
   module V1
     class NotesController < ApplicationController
-      include ParamsHandler
       rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
       rescue_from ActionController::ParameterMissing, with: :handle_missing_parameter
 
@@ -16,14 +15,8 @@ module Api
       end
 
       def create
-        note_params = { note: create_params }
-        require_nested(required_note_params[:note], note_params[:note])
-
-        if !validate_note_type(note_params[:note][:note_type])
-          handle_invalid_note_type
-        else
-          render_resource(Note.create!(create_params.merge(user: current_user)))
-        end
+        return handle_invalid_note_type unless valid_note_type?
+        render_resource(Note.create!(create_params.merge(user: current_user)))
       end
 
       def index_async
@@ -60,6 +53,7 @@ module Api
       end
 
       def create_params
+        params.require(:note).require(%i[title note_type content])
         params.require(:note).permit(:title, :note_type, :content)
       end
 
@@ -67,8 +61,8 @@ module Api
         { author: params.require(:author) }
       end
 
-      def validate_note_type(note_type)
-        Note.note_types.key?(note_type)
+      def valid_note_type?
+        Note.note_types.key?(create_params[:note_type])
       end
 
       def handle_invalid_note_type
@@ -78,29 +72,9 @@ module Api
       end
 
       def handle_invalid_record(e)
-        json_error = e.record.errors.to_json
-        parsed_error = JSON.parse(json_error).values.flatten
-        message = parsed_error.first
-
         render json: {
-          error: message
+          error: e.record.errors.values.first
         }, status: :unprocessable_entity
-      end
-
-      def handle_missing_parameter(_e)
-        render json: {
-          error: I18n.t('activerecord.errors.messages.internal_server_error')
-        }, status: :bad_request
-      end
-
-      def required_note_params
-        {
-          note: {
-            title: true,
-            content: true,
-            note_type: true
-          }
-        }
       end
     end
   end
