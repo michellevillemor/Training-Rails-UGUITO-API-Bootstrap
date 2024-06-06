@@ -35,6 +35,9 @@ class Note < ApplicationRecord
     error_message = I18n.t('activerecord.errors.note.invalid_attribute.content_length',
                            { note_type: note_type, threshold: utility.content_short_length })
     errors.add(:content_length, error_message)
+    error_message = I18n.t('activerecord.errors.note.invalid_attribute.content_length',
+                           { note_type: note_type, threshold: utility.content_short_length })
+    errors.add(:content_length, error_message)
   end
 
   def word_count

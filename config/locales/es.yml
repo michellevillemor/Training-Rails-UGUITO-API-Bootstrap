@@ -33,26 +33,14 @@ es:
   activerecord:
     models:
       note: "Nota"
-    attributes:
-      note:
-        content: "El contenido"
-        title: "El título"
-        note_type: "El tipo de nota"
     errors:
       messages:
-        internal_server_error: "Falta parametro requerido"
+        missing_parameter: "Falta parametro requerido"
         record_not_found: "No se encuentra el registro"
         invalid_attribute: "El parametro es invalido"
       note:
         invalid_attribute:
           content_length: "Una %{note_type} no puede superar las %{threshold} palabras"
-          title: "El título no es válido"
-          content: "El contenido no es válido"
           note_type: "El tipo de nota no es válido"
     success:
       create: "%{resource} creada con éxito."
-  errors:
-    messages:
-      invalid_attribute: 
-        attribute: "El parametro es invalido"
-        note_type: "El tipo de nota no es válido"

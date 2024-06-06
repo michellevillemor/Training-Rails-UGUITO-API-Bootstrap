@@ -33,14 +33,9 @@ en:
   activerecord:
     models:
       note: "Note"
-    attributes:
-      note:
-        content: "The content"
-        title: "The title"
-        note_type: "The note type"
     errors:
       messages:
-        internal_server_error: "Required parameter is missing"
+        missing_parameter: "Required parameter is missing"
         record_not_found: "Record not found"
         invalid_attribute: "Invalid parameter"
       note:
