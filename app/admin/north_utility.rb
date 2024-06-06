@@ -52,8 +52,8 @@ ActiveAdmin.register NorthUtility do
       f.input :external_api_authentication_url, as: :url
       f.input :books_data_url, as: :url
       f.input :notes_data_url, as: :url
-      f.input :content_short_length
-      f.input :content_medium_length
+      f.input :content_short_length, required: false
+      f.input :content_medium_length, required: false
       f.actions
     end
   end

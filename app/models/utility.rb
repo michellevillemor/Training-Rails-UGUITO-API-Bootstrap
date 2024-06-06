@@ -28,7 +28,6 @@ class Utility < ApplicationRecord
 
   validates :name, uniqueness: true
   validates :name, :type, presence: true
-  validates :content_short_length, :content_medium_length, presence: true
 
   store_accessor :integration_urls, :external_api_authentication_url, :books_data_url,
                  :notes_data_url
@@ -77,12 +76,8 @@ class Utility < ApplicationRecord
     self.class.name.underscore.split('_').first
   end
 
-  def content_short_length
-    raise NotImplementedMethod, 'Short threshold not defined'
-  end
-
-  def content_medium_length
-    raise NotImplementedMethod, 'Medium threshold not defined'
+  def content_thresholds?
+    content_short_length.present? && content_medium_length.present?
   end
 
   private
