@@ -32,6 +32,8 @@ module UtilityService
 
       def map_notes(notes)
         notes.map do |note|
+          @author_full_name ||= map_name(note)
+
           {
             title: note['TituloNota'],
             note_type: map_note_type(note),
@@ -39,8 +41,8 @@ module UtilityService
             content: note['Contenido'],
             user: {
               email: note['EmailAutor'],
-              first_name: map_name(note)[:first_name],
-              last_name: map_name(note)[:last_name]
+              first_name: @author_full_name[:first_name],
+              last_name: @author_full_name[:last_name]
             },
             book: {
               title: note['TituloLibro'],

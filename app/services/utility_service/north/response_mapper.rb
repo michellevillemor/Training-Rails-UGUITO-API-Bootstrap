@@ -31,7 +31,11 @@ module UtilityService
             content: note['contenido'],
             created_at: note['fecha_creacion'],
             user: map_author(note['autor']),
-            book: map_book(note['libro'])
+            book: {
+                title: map_book(note['libro'])[:title],
+                author: map_book(note['libro'])[:author],
+                genre: map_book(note['libro'])[:genre]
+            }
           }
         end
       end
@@ -49,13 +53,10 @@ module UtilityService
       end
 
       def map_author(author)
-        author_contact_data = author['datos_de_contacto']
-        author_personal_data = author['datos_personales']
-
         {
-          email: author_contact_data['email'],
-          name: author_personal_data['nombre'],
-          surname: author_personal_data['apellido']
+          email: author['datos_de_contacto']['email'],
+          first_name: author['datos_personales']['nombre'],
+          last_name: author['datos_personales']['apellido']
         }
       end
 

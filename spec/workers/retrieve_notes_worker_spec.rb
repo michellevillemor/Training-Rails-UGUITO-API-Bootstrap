@@ -16,6 +16,14 @@ describe RetrieveNotesWorker do
       %i[title note_type created_at content user book]
     end
 
+    let(:expected_user_keys) do
+      %i[email first_name last_name]
+    end
+
+    let(:expected_book_keys) do
+      %i[title author genre]
+    end
+
     context 'with utility service' do
       let_it_be(:utilities) do
         %i[north_utility south_utility]
@@ -36,6 +44,8 @@ describe RetrieveNotesWorker do
 
         it 'returns the expected note keys' do
           expect(execute_worker.second[:notes].first.keys).to contain_exactly(*expected_notes_keys)
+          expect(execute_worker.second[:notes].first[:user].keys).to contain_exactly(*expected_user_keys)
+          expect(execute_worker.second[:notes].first[:book].keys).to contain_exactly(*expected_book_keys)
         end
       end
 
