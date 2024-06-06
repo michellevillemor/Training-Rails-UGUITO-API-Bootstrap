@@ -187,8 +187,9 @@ describe Api::V1::NotesController, type: :controller do
       end
 
       context 'when the note content length exceeds the limit for reviews' do
-        let(:user) { FactoryBot.create(:user) }
-        let(:utility) { user.utility }
+        let(:utility) { FactoryBot.create(%i[south_utility north_utility].sample) }
+        let(:user) { FactoryBot.create(:user, utility_id: utility.id) }
+
         let(:create_params) { base_create_params.deep_merge(note: { content: Faker::Lorem.sentence(word_count: 150), user_id: user.id }) }
         let(:message) do
           I18n.t(
