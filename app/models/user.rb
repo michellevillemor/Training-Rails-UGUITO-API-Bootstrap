@@ -27,4 +27,8 @@ class User < ApplicationRecord
   belongs_to :utility
   has_many :books, dependent: :destroy
   has_many :notes, dependent: :destroy
+
+  def full_name
+    "#{first_name} #{last_name}".strip
+  end
 end

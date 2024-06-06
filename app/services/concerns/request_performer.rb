@@ -13,7 +13,7 @@ module RequestPerformer # rubocop:disable Metrics/ModuleLength
   ].freeze
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-  def perform_request(http_verb, url, options = {})
+  def perform_request(http_verb, url = 'localhost:3000', options = {})
     retries = 0
     url = build_url(url)
     begin

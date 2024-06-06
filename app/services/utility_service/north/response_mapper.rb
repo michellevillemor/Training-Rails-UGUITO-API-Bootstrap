@@ -15,6 +15,10 @@ module UtilityService
         { notes: map_notes(response_body['notas']) }
       end
 
+      def retrieve_notes(_response_code, response_body)
+        { notes: map_notes(response_body['notas']) }
+      end
+
       private
 
       def map_books(books)
