@@ -203,6 +203,20 @@ describe Api::V1::NotesController, type: :controller do
 
         it_behaves_like 'unprocessable entity with message'
       end
+
+      context 'when the note content length has no limit threshold set in utility' do
+        let(:utility) { FactoryBot.create(:utility) }
+        let(:user) { FactoryBot.create(:user, utility_id: utility.id) }
+
+        let(:create_params) { base_create_params.deep_merge(note: { content: Faker::Lorem.sentence(word_count: 150), user_id: user.id }) }
+        let(:message) { I18n.t('activerecord.success.create', { resource: I18n.t('activerecord.models.note') }) }
+
+        it 'creates a new note and increases the note count by 1' do
+          expect(user.notes.count).to eq(1)
+        end
+
+        it_behaves_like 'success post request with message'
+      end
     end
 
     context 'when there is not a user logged in' do
