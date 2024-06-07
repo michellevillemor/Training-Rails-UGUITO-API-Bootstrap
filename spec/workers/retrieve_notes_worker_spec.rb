@@ -44,7 +44,13 @@ describe RetrieveNotesWorker do
 
         it 'returns the expected note keys' do
           expect(execute_worker.second[:notes].first.keys).to contain_exactly(*expected_notes_keys)
+        end
+
+        it 'returns the expected user keys' do
           expect(execute_worker.second[:notes].first[:user].keys).to contain_exactly(*expected_user_keys)
+        end
+
+        it 'returns the expected book keys' do
           expect(execute_worker.second[:notes].first[:book].keys).to contain_exactly(*expected_book_keys)
         end
       end

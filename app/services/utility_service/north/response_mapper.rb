@@ -15,10 +15,6 @@ module UtilityService
         { notes: map_notes(response_body['notas']) }
       end
 
-      def retrieve_notes(_response_code, response_body)
-        { notes: map_notes(response_body['notas']) }
-      end
-
       private
 
       def map_books(books)
@@ -29,6 +25,7 @@ module UtilityService
 
       def map_notes(notes)
         notes.map do |note|
+          book = map_book(note['libro'])
           {
             title: note['titulo'],
             note_type: map_note_type(note['tipo']),
@@ -36,9 +33,9 @@ module UtilityService
             created_at: note['fecha_creacion'],
             user: map_author(note['autor']),
             book: {
-                title: map_book(note['libro'])[:title],
-                author: map_book(note['libro'])[:author],
-                genre: map_book(note['libro'])[:genre]
+              title: book.dig(:title),
+              author: book.dig(:author),
+              genre: book.dig(:genre)
             }
           }
         end
