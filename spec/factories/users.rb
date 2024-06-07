@@ -6,6 +6,6 @@ FactoryBot.define do
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
     document_number { Faker::IDNumber.valid }
-    utility
+    utility { FactoryBot.build(%i[north_utility south_utility].sample) }
   end
 end

@@ -76,10 +76,6 @@ class Utility < ApplicationRecord
     self.class.name.underscore.split('_').first
   end
 
-  def content_thresholds?
-    content_short_length.present? && content_medium_length.present?
-  end
-
   private
 
   def utility_type

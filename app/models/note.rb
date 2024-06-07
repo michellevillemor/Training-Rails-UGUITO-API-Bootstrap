@@ -20,8 +20,7 @@ class Note < ApplicationRecord
   validates :user_id, :title, :content, :note_type, presence: true
   validate :validate_content_length, unless: lambda {
                                                user_id.blank? ||
-                                                 content.blank? ||
-                                                 !utility.content_thresholds?
+                                                 content.blank?
                                              }
 
   enum note_type: { 'review' => 0, 'critique' => 1 }
@@ -42,8 +41,8 @@ class Note < ApplicationRecord
   end
 
   def content_length
-    return 'short' if utility.content_thresholds? && word_count <= utility.content_short_length
-    return 'medium' if utility.content_thresholds? && word_count <= utility.content_medium_length
-    'long' if utility.content_thresholds?
+    return 'short' if word_count <= utility.content_short_length
+    return 'medium' if word_count <= utility.content_medium_length
+    'long'
   end
 end
