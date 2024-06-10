@@ -30,7 +30,7 @@ RSpec.describe User, type: :model do
 
     context 'when the first name is missing' do
       let(:first_name) { '' }
-  
+
       it 'returns the last name only' do
         expect(user.full_name).to eq(last_name)
       end
@@ -38,7 +38,7 @@ RSpec.describe User, type: :model do
 
     context 'when the last name is missing' do
       let(:last_name) { '' }
-  
+
       it 'returns the first name only' do
         expect(user.full_name).to eq(first_name)
       end
@@ -47,7 +47,7 @@ RSpec.describe User, type: :model do
     context 'when both first name and last name are missing' do
       let(:first_name) { '' }
       let(:last_name) { '' }
-  
+
       it 'returns an empty string' do
         expect(user.full_name).to eq('')
       end
