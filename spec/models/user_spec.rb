@@ -22,24 +22,35 @@ RSpec.describe User, type: :model do
     let(:last_name) { Faker::Name.last_name }
     let(:user) { create(:user, first_name: first_name, last_name: last_name) }
 
-    it 'returns the full name of the user' do
-      expect(user.full_name).to eq("#{first_name} #{last_name}")
+    context 'when both first name and last name are present' do
+      it 'returns the full name of the user' do
+        expect(user.full_name).to eq("#{first_name} #{last_name}")
+      end
     end
 
-    it 'handles missing first name' do
-      user[:first_name] = ''
-      expect(user.full_name).to eq(last_name)
+    context 'when the first name is missing' do
+      let(:first_name) { '' }
+  
+      it 'returns the last name only' do
+        expect(user.full_name).to eq(last_name)
+      end
     end
 
-    it 'handles missing last name' do
-      user[:last_name] = ''
-      expect(user.full_name).to eq(first_name)
+    context 'when the last name is missing' do
+      let(:last_name) { '' }
+  
+      it 'returns the first name only' do
+        expect(user.full_name).to eq(first_name)
+      end
     end
 
-    it 'handles missing first and last name' do
-      user[:first_name] = ''
-      user[:last_name] = ''
-      expect(user.full_name).to eq('')
+    context 'when both first name and last name are missing' do
+      let(:first_name) { '' }
+      let(:last_name) { '' }
+  
+      it 'returns an empty string' do
+        expect(user.full_name).to eq('')
+      end
     end
   end
 end
