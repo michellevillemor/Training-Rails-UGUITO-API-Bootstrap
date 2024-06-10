@@ -33,9 +33,9 @@ module UtilityService
             created_at: note['fecha_creacion'],
             user: map_author(note['autor']),
             book: {
-              title: book.dig(:title),
-              author: book.dig(:author),
-              genre: book.dig(:genre)
+              title: book[:title],
+              author: book[:author],
+              genre: book[:genre]
             }
           }
         end
@@ -55,9 +55,9 @@ module UtilityService
 
       def map_author(author)
         {
-          email: author['datos_de_contacto']['email'],
-          first_name: author['datos_personales']['nombre'],
-          last_name: author['datos_personales']['apellido']
+          email: author.dig('datos_de_contacto', 'email'),
+          first_name: author.dig('datos_personales', 'nombre'),
+          last_name: author.dig('datos_personales', 'apellido')
         }
       end
 
