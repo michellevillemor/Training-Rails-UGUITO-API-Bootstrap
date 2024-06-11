@@ -8,19 +8,20 @@ describe RetrieveNotesWorker do
       end
     end
 
-    let(:author) { 'J.K.Rowling' }
+    let(:author) { 'Rodrigo Lugo Melgar' }
     let(:params) { { author: author } }
     let(:user) { create(:user, utility: utility) }
 
     let(:expected_notes_keys) do
-      expected_notes_keys_by_utility[utility.type]
+      %i[title note_type created_at content user book]
     end
 
-    let(:expected_notes_keys_by_utility) do
-      {
-        'SouthUtility' => %i[id title note_review created_at fullname_author author_email book_author_name book_genre book_title content],
-        'NorthUtility' => %i[id title note_type content created_at author book]
-      }
+    let(:expected_user_keys) do
+      %i[email first_name last_name]
+    end
+
+    let(:expected_book_keys) do
+      %i[title author genre]
     end
 
     context 'with utility service' do
@@ -43,6 +44,14 @@ describe RetrieveNotesWorker do
 
         it 'returns the expected note keys' do
           expect(execute_worker.second[:notes].first.keys).to contain_exactly(*expected_notes_keys)
+        end
+
+        it 'returns the expected user keys' do
+          expect(execute_worker.second[:notes].first[:user].keys).to contain_exactly(*expected_user_keys)
+        end
+
+        it 'returns the expected book keys' do
+          expect(execute_worker.second[:notes].first[:book].keys).to contain_exactly(*expected_book_keys)
         end
       end
 

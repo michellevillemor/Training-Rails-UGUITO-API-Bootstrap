@@ -19,6 +19,11 @@ module Api
         render_resource(Note.create!(create_params.merge(user: current_user)))
       end
 
+      def index_async
+        response = execute_async(RetrieveNotesWorker, current_user.id, index_async_params)
+        async_custom_response(response)
+      end
+
       private
 
       def user_notes
@@ -50,6 +55,10 @@ module Api
       def create_params
         params.require(:note).require(%i[title note_type content])
         params.require(:note).permit(:title, :note_type, :content)
+      end
+
+      def index_async_params
+        { author: params.require(:author) }
       end
 
       def valid_note_type?

@@ -1,6 +1,11 @@
 module UtilityService
   module South
     class ResponseMapper < UtilityService::ResponseMapper
+      NOTE_TYPES = {
+        true => 'review',
+        false => 'critique'
+      }.freeze
+
       def retrieve_books(_response_code, response_body)
         { books: map_books(response_body['Libros']) }
       end
@@ -27,19 +32,38 @@ module UtilityService
 
       def map_notes(notes)
         notes.map do |note|
+          @author_full_name ||= map_name(note)
+
           {
-            id: note['Id'],
             title: note['TituloNota'],
-            note_review: note['ReseniaNota'],
+            note_type: map_note_type(note),
             created_at: note['FechaCreacionNota'],
-            author_email: note['EmailAutor'],
-            fullname_author: note['NombreCompletoAutor'],
-            book_title: note['TituloLibro'],
-            book_author_name: note['NombreAutorLibro'],
-            book_genre: note['GeneroLibro'],
-            content: note['Contenido']
+            content: note['Contenido'],
+            user: {
+              email: note['EmailAutor'],
+              first_name: @author_full_name[:first_name],
+              last_name: @author_full_name[:last_name]
+            },
+            book: {
+              title: note['TituloLibro'],
+              author: note['NombreAutorLibro'],
+              genre: note['GeneroLibro']
+            }
           }
         end
+      end
+
+      def map_note_type(note)
+        NOTE_TYPES[note['ReseniaNota']]
+      end
+
+      def map_name(note)
+        full_name = note['NombreCompletoAutor']
+        splitted_full_name = full_name.split
+        {
+          first_name: splitted_full_name[0],
+          last_name: splitted_full_name[1..].join(' ')
+        }
       end
     end
   end
