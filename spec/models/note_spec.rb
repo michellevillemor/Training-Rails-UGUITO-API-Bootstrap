@@ -83,7 +83,7 @@ describe Note, type: :model do
   end
 
   describe '#word_count' do
-    let(:total_words) { Faker::Number.number(digits: 1) }
+    let(:total_words) { Faker::Number.non_zero_digit }
     let(:updated_content) { Faker::Lorem.sentence(word_count: total_words) }
 
     it 'counts words in content' do
