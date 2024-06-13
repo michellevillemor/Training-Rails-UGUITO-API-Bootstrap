@@ -4,6 +4,8 @@ FactoryBot.define do
     name { 'South Utility' }
     external_api_key { Faker::Lorem.word }
     external_api_secret { Faker::Lorem.word }
+    content_short_length { 60 }
+    content_medium_length { 120 }
     base_url do
       'https://private-1971b-widergytrainingsouthutilityapi.apiary-mock.com'
     end

@@ -25,5 +25,11 @@ panel 'Utility' do
     row :notes_data_url do
       utility.notes_data_url
     end
+    row :content_short_length do
+      utility.content_short_length
+    end
+    row :content_medium_length do
+      utility.content_medium_length
+    end
   end
 end

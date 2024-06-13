@@ -15,6 +15,8 @@
 #  jsonb                                :jsonb
 #  created_at                           :datetime         not null
 #  updated_at                           :datetime         not null
+#  content_short_length                 :integer
+#  content_medium_length                :integer
 #
 class Utility < ApplicationRecord
   include EntityWithCode
@@ -72,14 +74,6 @@ class Utility < ApplicationRecord
 
   def clean_name
     self.class.name.underscore.split('_').first
-  end
-
-  def content_short_length
-    raise NotImplementedMethod, 'Short threshold not defined'
-  end
-
-  def content_medium_length
-    raise NotImplementedMethod, 'Medium threshold not defined'
   end
 
   private
